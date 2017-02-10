@@ -82,6 +82,9 @@
   <ItemGroup>
     <ClInclude Include="dbtable.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="table.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

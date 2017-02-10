@@ -1,5 +1,7 @@
 //-----------------------------------------------------------------------------
-//
+// File: dbtable.cpp
+// Auth: SnipGhost
+//                                            Реализация методов класса DBTable
 //-----------------------------------------------------------------------------
 #include "dbtable.h"
 //-----------------------------------------------------------------------------
@@ -44,18 +46,20 @@ DBTable::~DBTable()
 	for (size_t i = 0; i < records.size(); ++i)
 		for (It_body j = records[i].begin(); j != records[i].end(); ++j)
 			delete [] j->second;
+	colHeaders.clear();
+	records.clear();
 }
 //-----------------------------------------------------------------------------
 bool DBTable::readFromFile(string path)
 {
 	ifstream fin(path);                // Входной типа-CSV файл с таблицей
-	vector<pair<string, string>> head; // Вспомогательный буффер под заголовок
+	vector<pair<string, string>> head; // Вспомогательный буфер под заголовок
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	getline(fin, tableName); // Получили имя таблицы
+	getline(fin, tableName);           // Получили имя таблицы
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	char line[255], *first_token, *second_token, *delims = "|";
+	char line[MAX_LINE], *first_token, *second_token, *delims = "|";
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	fin.getline(line, 255);  // Получили заголовок таблицы, режем его
+	fin.getline(line, MAX_LINE);       // Получили заголовок таблицы, режем его
 	first_token = strtok(line, delims);
 	while (first_token != NULL) 
 	{
@@ -68,32 +72,35 @@ bool DBTable::readFromFile(string path)
 	// Получаем очередную запись в цикле
 	while (fin.getline(line, 255) && strlen(line) > 1)
 	{ 
-		size_t col = 0;
-		Row rec;
+		size_t col = 0;  // Параллельно отслеживаем номер столбца
+		Row rec;         // Начинаем формировать текущую запись
 		first_token = strtok(line, delims);
 		while (first_token != NULL)
 		{
-			// dataToVoid требует очистки памяти в деструкторе
+			// dataToVoid требует очистки памяти каждого val в деструкторе
 			void *val = dataToVoid(head[col].second, first_token);
 			rec.insert(pair<string, void*>(head[col].first, val));
 			col++;
 			first_token = strtok(NULL, delims);
 		}
-		records.push_back(rec);
+		records.push_back(rec); // Добавляем запись в конец таблицы
 	}
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	fin.close();
-	return 1;
+	fin.close(); // Закрывам файл
+	return 1;    // Возвращаемые значения: 1 - успех, 0 - произошла ошибка
 }
 //-----------------------------------------------------------------------------
 void DBTable::printTable()
 {
-	cout << tableName << endl;
+	cout << tableName << endl; // Вывод названия таблицы
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// Вывод заголовка
 	for (It_head i = colHeaders.begin(); i != colHeaders.end(); ++i)
-		cout << setw(10) << i->first << " : " << setw(7) << i->second << " | ";
+		cout << setw(10) << i->first << ": " << setw(8) << i->second << " | ";
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	cout << endl;
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// Вывод записей
 	for (size_t i = 0; i < records.size(); ++i)
 	{
 		It_head col = colHeaders.begin();

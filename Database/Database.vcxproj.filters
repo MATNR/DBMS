@@ -27,4 +27,7 @@
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="table.txt" />
+  </ItemGroup>
 </Project>
