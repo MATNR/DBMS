@@ -32,5 +32,7 @@ class DBTable
 	 bool readFromFile(string path);
 	 void printTable();
 	 //Row getRecord(string value, string colName);
+	 size_t getSize();
+	 Row& operator[](int index);
 };
 //-----------------------------------------------------------------------------
