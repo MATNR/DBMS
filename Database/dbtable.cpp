@@ -96,7 +96,7 @@ void DBTable::printTable()
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// Вывод заголовка
 	for (It_head i = colHeaders.begin(); i != colHeaders.end(); ++i)
-		cout << setw(10) << i->first << ": " << setw(8) << i->second << " | ";
+		cout << setw(7) << i->first << ": " << setw(7) << i->second << " | ";
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	cout << endl;
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -106,7 +106,7 @@ void DBTable::printTable()
 		It_head col = colHeaders.begin();
 		for (It_body j = records[i].begin(); j != records[i].end(); ++j, ++col)
 		{
-			cout << setw(20);
+			cout << setw(16);
 			if (col->second == "Integer") cout << (*((int*)j->second));
 			else if (col->second == "Float") cout << (*((double*)j->second));
 			else cout << (char*)(j->second);
