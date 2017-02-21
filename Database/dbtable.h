@@ -25,6 +25,8 @@ class DBTable
 	 string tableName;    // Имя таблицы
 	 Header colHeaders;   // Заголовок таблицы (имена столбцов + тип значений)
 	 vector<Row> records; // Вектор записей
+	 void* dataToVoid(string &type, char* value);
+	 void printValue(string colName, void *val);
  public:
 	 DBTable();
 	 DBTable(string path);
