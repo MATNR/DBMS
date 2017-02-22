@@ -26,8 +26,11 @@ const int MAX_LINE = 255;       // Максимальная длина строки считываемого файла
 extern map<string, int> typeCodes;  // Коды зарегестрированных типов
 extern char *STD_DELIMS;            // Разделители по умолчанию
 //-----------------------------------------------------------------------------
-void showMsg(int type, string msg); // Отобразить отладочное сообщение
-void readConfig(string path);       // Загрузить данные конфигурации
+size_t getTypeSize(string type, void *val); // Получить размер в байтах типа
+void showMsg(int type, string msg);         // Отобразить отладочное сообщение
+void readConfig(string path);               // Загрузить данные конфигурации
+void* getValue(string type, char* value);   // Переводит строку в соотв. тип
+void extValue(string type, void *val, ostream &out = cout); // Извлечь значение
 //-----------------------------------------------------------------------------
 #endif /* CONFIG_H */
 //-----------------------------------------------------------------------------

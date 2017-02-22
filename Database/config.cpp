@@ -13,6 +13,17 @@ char *SIG_CRIT = NULL;      // Пометка о критическом сбое
 char *SIG_WARN = NULL;      // Пометка о предупреждении
 char *SIG_NORM = NULL;      // Пометка об успешном заверешении операции
 //-----------------------------------------------------------------------------
+size_t getTypeSize(string type, void *val)
+{
+	switch (typeCodes[type])
+	{
+		case 1: return sizeof(int);
+		case 2: return sizeof(double);
+		case 3: return sizeof(char)*strlen((char*)val);
+		default: return 1;
+	}
+}
+//-----------------------------------------------------------------------------
 void showMsg(int type, string msg)
 {
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -53,5 +64,49 @@ void readConfig(string path)
 	typeCodes["String"] = 3;
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	showMsg(2, "Успешно загружена конфигурация из файла " + path);
+}
+//-----------------------------------------------------------------------------
+void* getValue(string type, char* value) // Переводит строку в соотв. тип
+{
+	void *vp = NULL;
+	switch(typeCodes[type])
+	{
+		case 1:
+		{
+			int *buffer = new int(atoi(value));
+			vp = buffer;
+			break;
+		}
+		case 2:
+		{
+			double *buffer = new double(atof(value));
+			vp = buffer;
+			break;
+		}
+		case 3:
+		default:
+		{
+			char *buffer = new char[strlen(value)+1];
+			memcpy(buffer, value, strlen(value)+1);
+			vp = buffer;
+		}
+	}
+	return vp;
+}
+//-----------------------------------------------------------------------------
+void extValue(string type, void *val, ostream &out)
+{
+	switch (typeCodes[type]) 
+	{
+		case 1:
+			out << *((int*)val);
+			break;
+		case 2:
+			out << *((double*)val);
+			break;
+		case 3:
+		default:
+			out << (char*)(val);
+	}
 }
 //-----------------------------------------------------------------------------

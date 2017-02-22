@@ -5,50 +5,6 @@
 //-----------------------------------------------------------------------------
 #include "dbtable.h"
 //-----------------------------------------------------------------------------
-void* DBTable::getValue(string &type, char* value)   // Вспомогательная функция
-{                                              // Переводит строку в соотв. тип
-	void *vp = NULL;
-	switch(typeCodes[type])
-	{
-		case 1:
-		{
-			int *buffer = new int(atoi(value));
-			vp = buffer;
-			break;
-		}
-		case 2:
-		{
-			double *buffer = new double(atof(value));
-			vp = buffer;
-			break;
-		}
-		case 3:
-		default:
-		{
-			char *buffer = new char[strlen(value)+1];
-			memcpy(buffer, value, strlen(value)+1);
-			vp = buffer;
-		}
-	}
-	return vp;
-}
-//-----------------------------------------------------------------------------
-void DBTable::extractValue(string colName, void *val)
-{
-	switch (typeCodes[colHeaders[colName]]) 
-	{
-		case 1:
-			cout << *((int*)val);
-			break;
-		case 2:
-			cout << *((double*)val);
-			break;
-		case 3:
-		default:
-			cout << (char*)(val);
-	}
-}
-//-----------------------------------------------------------------------------
 DBTable::DBTable()
 {
 	tableName = "";
@@ -85,6 +41,11 @@ size_t DBTable::getSize()
 Row& DBTable::operator[](size_t index)
 {
 	return records[index % getSize()];
+}
+//-----------------------------------------------------------------------------
+string DBTable::getColType(string colName)
+{
+	return colHeaders[colName];
 }
 //-----------------------------------------------------------------------------
 bool DBTable::readFromFile(string path, char *delims)
@@ -166,7 +127,7 @@ void DBTable::printTable() // TODO: сделать размеры полей в�
 		for (It_body c = records[i].begin(); c != records[i].end(); ++c)
 		{
 			cout << setw(16);
-			extractValue(c->first, c->second);
+			extValue(colHeaders[c->first], c->second);
 			cout << " | ";
 		}
 		cout << endl;
@@ -174,5 +135,32 @@ void DBTable::printTable() // TODO: сделать размеры полей в�
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	cout << endl;
 	showMsg(2, "Печать таблицы завершена");
+}
+//-----------------------------------------------------------------------------
+void DBTable::printValue(size_t rowNum, string colName)
+{
+	extValue(colHeaders[colName], records[rowNum][colName]);
+}
+//-----------------------------------------------------------------------------
+bool DBTable::removeRow(size_t rowNum)
+{
+	if (rowNum >= getSize()) {
+		showMsg(1, "Нет строки с таким номером");
+		return 0;
+	}
+	records.erase(records.begin() += rowNum);
+	return 1; // 1 - удаление прошло успешно, 0 - записи не найдено
+}
+//-----------------------------------------------------------------------------
+int DBTable::findRow(string colName, char *value)
+{
+	void *val = getValue(getColType(colName), value);
+	for (auto it = records.begin(); it != records.end(); ++it)
+	{
+		int size = getTypeSize(colHeaders[colName], val);
+		int i = memcmp(val, (*it)[colName], size);
+		if (i == 0) return (it-records.begin());
+	}
+	return -1; // -1 - запись в таблице не найдена
 }
 //-----------------------------------------------------------------------------
