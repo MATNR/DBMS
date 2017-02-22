@@ -5,47 +5,54 @@
 //-----------------------------------------------------------------------------
 #include "dbtable.h"
 //-----------------------------------------------------------------------------
-void* DBTable::dataToVoid(string &type, char* value) // Вспомогательная функция
+void* DBTable::getValue(string &type, char* value)   // Вспомогательная функция
 {                                              // Переводит строку в соотв. тип
 	void *vp = NULL;
-	if (type == "Integer") 
+	switch(typeCodes[type])
 	{
-		int *buffer = new int(atoi(value));
-		vp = buffer;
-	}
-	else if (type == "Float" || type == "Double")
-	{
-		double *buffer = new double(atof(value));
-		vp = buffer;
-	} 
-	else 
-	{
-		char *buffer = new char[strlen(value)+1];
-		memcpy(buffer, value, strlen(value)+1);
-		vp = buffer;
+		case 1:
+		{
+			int *buffer = new int(atoi(value));
+			vp = buffer;
+			break;
+		}
+		case 2:
+		{
+			double *buffer = new double(atof(value));
+			vp = buffer;
+			break;
+		}
+		case 3:
+		default:
+		{
+			char *buffer = new char[strlen(value)+1];
+			memcpy(buffer, value, strlen(value)+1);
+			vp = buffer;
+		}
 	}
 	return vp;
 }
 //-----------------------------------------------------------------------------
-void DBTable::printValue(string colName, void *val)
+void DBTable::extractValue(string colName, void *val)
 {
-	if (colHeaders[colName] == "Integer") cout << (*((int*)val));
-	else if (colHeaders[colName] == "Float") cout << (*((double*)val));
-	else cout << (char*)(val);
+	switch (typeCodes[colHeaders[colName]]) 
+	{
+		case 1:
+			cout << *((int*)val);
+			break;
+		case 2:
+			cout << *((double*)val);
+			break;
+		case 3:
+		default:
+			cout << (char*)(val);
+	}
 }
 //-----------------------------------------------------------------------------
 DBTable::DBTable()
 {
 	tableName = "";
-}
-//-----------------------------------------------------------------------------
-DBTable::DBTable(string path)
-{
-	if (!readFromFile(path)) {
-		tableName = "";
-		colHeaders.clear();
-		records.clear();
-	}
+	showMsg(2, "Успешно создана пустая таблица");
 }
 //-----------------------------------------------------------------------------
 DBTable::~DBTable()
@@ -55,16 +62,44 @@ DBTable::~DBTable()
 			delete [] j->second;
 	colHeaders.clear();
 	records.clear();
+	showMsg(2, "Таблица успешно удалена, память очищена");
 }
 //-----------------------------------------------------------------------------
-bool DBTable::readFromFile(string path)
+DBTable::DBTable(string path, char *delims)
+{
+	if (!readFromFile(path, delims)) {
+		tableName = "";
+		colHeaders.clear();
+		records.clear();
+		showMsg(1, "Таблицу загрузить не удалось, создана пустая");
+	} else {
+		showMsg(2, "Успешно создана загруженная таблица");
+	}
+}
+//-----------------------------------------------------------------------------
+size_t DBTable::getSize()
+{
+	return (int)records.size();
+}
+//-----------------------------------------------------------------------------
+Row& DBTable::operator[](size_t index)
+{
+	return records[index % getSize()];
+}
+//-----------------------------------------------------------------------------
+bool DBTable::readFromFile(string path, char *delims)
 {
 	ifstream fin(path);                // Входной типа-CSV файл с таблицей
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	if (fin.fail()) {
+		showMsg(0, "Не удалось открыть файл " + path);
+		return 0;
+	}
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	char line[MAX_LINE], *first_token, *second_token;
 	vector<pair<string, string>> head; // Вспомогательный буфер под заголовок
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	getline(fin, tableName);           // Получили имя таблицы
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	char line[MAX_LINE], *first_token, *second_token, *delims = "|";
+	getline(fin, tableName);           // Получили название таблицы
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	fin.getline(line, MAX_LINE);       // Получили заголовок таблицы, режем его
 	first_token = strtok(line, delims);
@@ -75,7 +110,10 @@ bool DBTable::readFromFile(string path)
 		head.push_back(pair<string, string>(first_token, second_token));
 		first_token = strtok(NULL, delims);
 	}
-	if (colHeaders.size() != head.size()) return 0;
+	if (colHeaders.size() != head.size()) {
+		showMsg(1, "Некорректный заголовок таблицы в файле " + path);
+		return 0;
+	}
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// Получаем очередную запись в цикле
 	while (fin.getline(line, 255) && strlen(line) > 1)
@@ -85,8 +123,12 @@ bool DBTable::readFromFile(string path)
 		first_token = strtok(line, delims);
 		while (first_token != NULL)
 		{
+			if (col > head.size()-1) {
+				showMsg(1, "Слишком много данных в текущей строке");
+				return 0;
+			}
 			// dataToVoid требует очистки памяти каждого val в деструкторе
-			void *val = dataToVoid(head[col].second, first_token);
+			void *val = getValue(head[col].second, first_token);
 			rec[head[col].first] = val;
 			col++;
 			first_token = strtok(NULL, delims);
@@ -94,14 +136,15 @@ bool DBTable::readFromFile(string path)
 		records.push_back(rec); // Добавляем запись в конец таблицы
 	}
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	showMsg(2, "Файл с таблицей успешно прочитан");
 	fin.close(); // Закрывам файл
 	return 1;    // Возвращаемые значения: 1 - успех, 0 - произошла ошибка
 }
 //-----------------------------------------------------------------------------
-void DBTable::printTable()
+void DBTable::printTable() // TODO: сделать размеры полей вывода изменяемыми
 {
-	if (tableName.size() == 0) {
-		cout << "Таблица не создана\n";
+	if (colHeaders.size() == 0) {
+		showMsg(0, "Таблица не создана");
 		return;
 	}
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -112,8 +155,8 @@ void DBTable::printTable()
 		cout << setw(7) << i->first << ": " << setw(7) << i->second << " | ";
 	cout << endl;
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	if (this->getSize() == 0) {
-		cout << "Таблица пуста\n";
+	if (getSize() == 0) {
+		showMsg(1, "Таблица пуста");
 		return;
 	}
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -123,22 +166,13 @@ void DBTable::printTable()
 		for (It_body c = records[i].begin(); c != records[i].end(); ++c)
 		{
 			cout << setw(16);
-			printValue(c->first, c->second);
+			extractValue(c->first, c->second);
 			cout << " | ";
 		}
 		cout << endl;
 	}
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	cout << endl;
-}
-//-----------------------------------------------------------------------------
-size_t DBTable::getSize()
-{
-	return (int)records.size();
-}
-//-----------------------------------------------------------------------------
-Row& DBTable::operator[](int index)
-{
-	return records[index];
+	showMsg(2, "Печать таблицы завершена");
 }
 //-----------------------------------------------------------------------------
