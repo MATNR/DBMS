@@ -13,17 +13,6 @@ char *SIG_CRIT = NULL;      // Пометка о критическом сбое
 char *SIG_WARN = NULL;      // Пометка о предупреждении
 char *SIG_NORM = NULL;      // Пометка об успешном заверешении операции
 //-----------------------------------------------------------------------------
-size_t getTypeSize(string type, void *val)
-{
-	switch (typeCodes[type])
-	{
-		case 1: return sizeof(int);
-		case 2: return sizeof(double);
-		case 3: return sizeof(char)*strlen((char*)val);
-		default: return 1;
-	}
-}
-//-----------------------------------------------------------------------------
 void showMsg(int type, string msg)
 {
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -45,6 +34,17 @@ void showMsg(int type, string msg)
 	{
 		cout << SIG_NORM << msg << endl;
 		return;
+	}
+}
+//-----------------------------------------------------------------------------
+size_t getTypeSize(string type, void *val)
+{
+	switch (typeCodes[type])
+	{
+		case 1: return sizeof(int);
+		case 2: return sizeof(double);
+		case 3: return sizeof(char)*strlen((char*)val);
+		default: return 1;
 	}
 }
 //-----------------------------------------------------------------------------
@@ -105,8 +105,25 @@ void extValue(string type, void *val, ostream &out)
 			out << *((double*)val);
 			break;
 		case 3:
-		default:
 			out << (char*)(val);
+			break;
+		default:
+			showMsg(0, "Несуществующий тип");
 	}
+}
+//-----------------------------------------------------------------------------
+int rowIntCmp(Row &a, Row &b, string s)
+{
+	return (*(int*)a[s] - *(int*)b[s]);
+}
+//-----------------------------------------------------------------------------
+int rowDouCmp(Row &a, Row &b, string s)
+{
+	return ((*(double*)a[s] - *(double*)b[s]) > 0) ? 1 : -1;
+}
+//-----------------------------------------------------------------------------
+int rowStrCmp(Row &a, Row &b, string s)
+{
+	return strcmp((char*)a[s], (char*)b[s]);
 }
 //-----------------------------------------------------------------------------

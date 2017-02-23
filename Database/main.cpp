@@ -12,16 +12,25 @@ int main()
 	readConfig("config.txt");
 	DBTable *t = new DBTable("table.txt");
 	t->printTable();
+	// EXAMPLE #0 - сортировка //
+	if (t->sortRecords("Name"))
+		t->printTable();
+	if (t->sortRecords("Group", 1))
+		t->printTable();
+	if (t->sortRecords("Mark"))
+		t->printTable();
 	// EXAMPLE #1 - печать значения //
-	t->printValue(2, "Name");
-	cout << endl;
+	if (t->printValue(2, "Name"))
+		cout << endl;
 	// EXAMPLE #2 - удаление записи //
-	t->removeRow(2);
-	t->printTable();
+	if (t->removeRow(2))
+		t->printTable();
 	// EXAMPLE #3 - поиск и удаление //
 	int i = t->findRow("Mark", "4.6");
-	if (i >= 0) t->removeRow(i);
-	t->printTable();
+	if (i >= 0) {
+		t->removeRow(i);
+		t->printTable();
+	}
 	// Удаление всей таблицы //
 	delete t;
 	system("pause");

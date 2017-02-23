@@ -5,6 +5,15 @@
 //-----------------------------------------------------------------------------
 #include "dbtable.h"
 //-----------------------------------------------------------------------------
+bool DBTable::isColExist(string colName)
+{
+	if (colHeaders.count(colName) == 0) {
+		showMsg(1, "Такого столбца не существует");
+		return 0;
+	}
+	return 1;
+}
+//-----------------------------------------------------------------------------
 DBTable::DBTable()
 {
 	tableName = "";
@@ -102,19 +111,25 @@ bool DBTable::readFromFile(string path, char *delims)
 	return 1;    // Возвращаемые значения: 1 - успех, 0 - произошла ошибка
 }
 //-----------------------------------------------------------------------------
-void DBTable::printTable() // TODO: сделать размеры полей вывода изменяемыми
-{
+void DBTable::printTable(bool withHeader)
+{                             // TODO: сделать размеры полей вывода изменяемыми
 	if (colHeaders.size() == 0) {
 		showMsg(0, "Таблица не создана");
 		return;
 	}
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	cout << tableName << endl; // Вывод названия таблицы
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	// Вывод заголовка
-	for (It_head i = colHeaders.begin(); i != colHeaders.end(); ++i)
-		cout << setw(7) << i->first << ": " << setw(7) << i->second << " | ";
-	cout << endl;
+	if (withHeader)
+	{
+		cout << tableName << endl; // Вывод названия таблицы
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		// Вывод заголовка
+		for (It_head i = colHeaders.begin(); i != colHeaders.end(); ++i)
+		{
+			cout << setw(7) << i->first << ": ";
+			cout << setw(7) << i->second << " | ";
+		}
+		cout << endl;
+	}
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	if (getSize() == 0) {
 		showMsg(1, "Таблица пуста");
@@ -137,9 +152,11 @@ void DBTable::printTable() // TODO: сделать размеры полей в�
 	showMsg(2, "Печать таблицы завершена");
 }
 //-----------------------------------------------------------------------------
-void DBTable::printValue(size_t rowNum, string colName)
+bool DBTable::printValue(size_t rowNum, string colName)
 {
+	if (!isColExist(colName)) return 0;
 	extValue(colHeaders[colName], records[rowNum][colName]);
+	return 1;
 }
 //-----------------------------------------------------------------------------
 bool DBTable::removeRow(size_t rowNum)
@@ -154,6 +171,7 @@ bool DBTable::removeRow(size_t rowNum)
 //-----------------------------------------------------------------------------
 int DBTable::findRow(string colName, char *value)
 {
+	if (!isColExist(colName)) return -1;
 	void *val = getValue(getColType(colName), value);
 	for (auto it = records.begin(); it != records.end(); ++it)
 	{
@@ -161,6 +179,44 @@ int DBTable::findRow(string colName, char *value)
 		int i = memcmp(val, (*it)[colName], size);
 		if (i == 0) return (it-records.begin());
 	}
+	showMsg(1, "Запись со значением " + colName + "=" + value + " не найдена");
 	return -1; // -1 - запись в таблице не найдена
+}
+//-----------------------------------------------------------------------------
+void DBTable::sort(string colName, RowCmp cmp, bool isReverse)
+{
+	for (size_t i = 0; i < records.size(); ++i)
+	{
+		size_t mi = i;
+		for (size_t j = i+1; j < records.size(); ++j)
+		{
+			int r = cmp(records[j], records[mi], colName);
+			if (isReverse ? r > 0 : r < 0) 
+				mi = j;
+		}
+		if (mi != i) swap(records[mi], records[i]);
+	}
+}
+//-----------------------------------------------------------------------------
+bool DBTable::sortRecords(string colName, bool isReverse)
+{
+	if (!isColExist(colName)) return 0;
+	switch (typeCodes[colHeaders[colName]])
+	{
+		case 1:
+			sort(colName, rowIntCmp, isReverse);
+			break;
+		case 2:
+			sort(colName, rowDouCmp, isReverse);
+			break;
+		case 3:
+			sort(colName, rowStrCmp, isReverse);
+			break;
+		default:
+			showMsg(0, "По столбцу '" + colName + "' нельзя отсортировать");
+			return 0;
+	}
+	showMsg(2, "Таблица успешно отсортированна по столбцу '" + colName + "'");
+	return 1;
 }
 //-----------------------------------------------------------------------------
