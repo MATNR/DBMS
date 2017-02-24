@@ -9,7 +9,7 @@
 int main()
 {
 	system("chcp 1251 > nul");
-	readConfig("config.txt");
+	if (!readConfig("config.txt")) return 1;
 	// Создание и загрузка таблицы //
 	DBTable *t = new DBTable("table.txt");
 	t->printTable();

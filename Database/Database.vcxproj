@@ -85,6 +85,7 @@
     <ClInclude Include="dbtable.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="config.txt" />
     <Text Include="table.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

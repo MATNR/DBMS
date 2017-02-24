@@ -25,16 +25,15 @@ using namespace std;
 const int MAX_LINE = 255;       // Максимальная длина строки считываемого файла
 //-----------------------------------------------------------------------------
 extern map<string, int> typeCodes;  // Коды зарегестрированных типов
-extern char *STD_DELIMS;            // Разделители по умолчанию
+extern char STD_DELIMS[20];         // Разделители по умолчанию
 extern ostream *logs;               // Поток вывода логов СУБД
 //-----------------------------------------------------------------------------
-// Операторы форматирования: http://www.cplusplus.com/reference/ctime/strftime/
 string getLocTime(const char *format); // Получить текущее время в виде format
 //-----------------------------------------------------------------------------
 void showMsg(int type, string msg, ostream &out = *logs); // Показать сообщение
 //-----------------------------------------------------------------------------
 size_t getTypeSize(string type, void *val); // Получить размер в байтах типа
-void readConfig(string path);               // Загрузить данные конфигурации
+bool readConfig(string path);               // Загрузить данные конфигурации
 void* getValue(string type, char* value);   // Переводит строку в соотв. тип
 string extValue(string type, void *val);    // Извлечь значение в строку
 //-----------------------------------------------------------------------------

@@ -8,12 +8,12 @@
 ostream *logs;              // Поток вывода логов СУБД
 //-----------------------------------------------------------------------------
 map<string, int> typeCodes; // Коды зарегестрированных типов
-bool showDateTime = true;   // Показывать дату и время в сообщениях
-char *TIME_FORMAT = NULL;   // Формат вывода даты и времени
-char *STD_DELIMS = NULL;    // Разделители по умолчанию
-char *SIG_CRIT = NULL;      // Пометка о критическом сбое
-char *SIG_WARN = NULL;      // Пометка о предупреждении
-char *SIG_NORM = NULL;      // Пометка об успешном заверешении операции
+bool showDateTime;   // Показывать дату и время в сообщениях
+char TIME_FORMAT[80];   // Формат вывода даты и времени
+char STD_DELIMS[20];    // Разделители по умолчанию
+char SIG_CRIT[10];      // Пометка о критическом сбое
+char SIG_WARN[10];      // Пометка о предупреждении
+char SIG_NORM[10];      // Пометка об успешном заверешении операции
 //-----------------------------------------------------------------------------
 string getLocTime(const char *format) // Жуткая Сишная функция
 {
@@ -28,10 +28,6 @@ void showMsg(int type, string msg, ostream &out)
 {
 	string t = "";
 	if (showDateTime) t = "(" + getLocTime(TIME_FORMAT) + ") ";
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	if (!SIG_CRIT) SIG_CRIT = "[!] ";
-	if (!SIG_WARN) SIG_WARN = "[-] ";
-	if (!SIG_NORM) SIG_NORM = "[+] ";
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	if (type == 0 && DEBUG_CRIT) 
 	{
@@ -61,28 +57,80 @@ size_t getTypeSize(string type, void *val)
 	}
 }
 //-----------------------------------------------------------------------------
-void readConfig(string path)
+bool readConfig(string path)
 {
-	// TODO: Сделать загрузку из файла конфигурации
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// Выставление значений по-умолчанию
 	logs = &cout;
-	//logs = new ofstream("database.log");
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	strcpy(TIME_FORMAT, "%d.%m.%Y %I:%M:%S");
 	showDateTime = true;
-	TIME_FORMAT = "%d.%m.%Y %I:%M:%S"; //Формат: dd.mm.yyyy hh:mm:ss
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	STD_DELIMS = "|";
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	SIG_CRIT = "[!] ";
-	SIG_WARN = "[-] ";
-	SIG_NORM = "[+] ";
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	strcpy(SIG_CRIT, "[!] ");
+	strcpy(SIG_WARN, "[-] ");
+	strcpy(SIG_NORM, "[+] ");
 	typeCodes["Integer"] = 1;
-	typeCodes["Float"] = 2;
-	typeCodes["Double"] = 2;
+	typeCodes["Real"] = 2;
 	typeCodes["String"] = 3;
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	ifstream fin(path);
+	if (fin.fail()) {
+		showMsg(0, "Не удалось прочитать файл конфигурации");
+		return 0;
+	}
+	char line[MAX_LINE], *conf_delims = "=";
+	while (fin.getline(line, MAX_LINE))
+	{
+		if (strlen(line) <= 1) continue; // пропускаем пустые строки
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		char *key = strtok(line, conf_delims);
+		char *val = strtok(NULL, conf_delims);
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		if (key[0] == '#') continue;    // пропускаем все комментарии
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		if (key[0] == '@') {
+			string s = key+1;
+			typeCodes[s] = atoi(val);
+			continue;
+		}
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		if (strcmp(key, "LOGS") == 0) {
+			if (strcmp(val, "cout") == 0) logs = &cout;
+			else logs = new ofstream(val);
+			continue;
+		}
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		if (strcmp(key, "SHOW_TIME") == 0) {
+			if (strcmp(val, "true") == 0 || strcmp(val, "True") == 0)
+				showDateTime = true;
+			else
+				showDateTime = false;
+			continue;
+		}
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		if (strcmp(key, "TIME_FORMAT") == 0) {
+			strcpy(TIME_FORMAT, val);
+			continue;
+		}
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		if (strcmp(key, "STD_DELIMS") == 0) {
+			strcpy(STD_DELIMS, val);
+			continue;
+		}
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		if (strcmp(key, "SIG_CRIT") == 0) {
+			strcpy(SIG_CRIT, val);
+			continue;
+		}
+		if (strcmp(key, "SIG_WARN") == 0) {
+			strcpy(SIG_WARN, val);
+			continue;
+		}
+		if (strcmp(key, "SIG_CRIT") == 0) {
+			strcpy(SIG_NORM, val);
+			continue;
+		}
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	}
 	showMsg(2, "Успешно загружена конфигурация из файла " + path);
+	return 1;
 }
 //-----------------------------------------------------------------------------
 void* getValue(string type, char* value) // Переводит строку в соотв. тип

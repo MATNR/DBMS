@@ -35,5 +35,6 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="table.txt" />
+    <Text Include="config.txt" />
   </ItemGroup>
 </Project>
