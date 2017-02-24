@@ -1,38 +1,50 @@
-//-----------------------------------------------------------------------------
+п»ї//-----------------------------------------------------------------------------
 // File: config.cpp
 // Auth: SnipGhost
-//                                                 Вспомогательные функции ядра
+//                                                 Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Рµ С„СѓРЅРєС†РёРё СЏРґСЂР°
 //-----------------------------------------------------------------------------
 #include "config.h"
 //-----------------------------------------------------------------------------
-bool DebugMsg = 1;
+ostream *logs;              // РџРѕС‚РѕРє РІС‹РІРѕРґР° Р»РѕРіРѕРІ РЎРЈР‘Р”
 //-----------------------------------------------------------------------------
-map<string, int> typeCodes; // Коды зарегестрированных типов
-char *STD_DELIMS = NULL;    // Разделители по умолчанию
-char *SIG_CRIT = NULL;      // Пометка о критическом сбое
-char *SIG_WARN = NULL;      // Пометка о предупреждении
-char *SIG_NORM = NULL;      // Пометка об успешном заверешении операции
+map<string, int> typeCodes; // РљРѕРґС‹ Р·Р°СЂРµРіРµСЃС‚СЂРёСЂРѕРІР°РЅРЅС‹С… С‚РёРїРѕРІ
+bool showDateTime = true;   // РџРѕРєР°Р·С‹РІР°С‚СЊ РґР°С‚Сѓ Рё РІСЂРµРјСЏ РІ СЃРѕРѕР±С‰РµРЅРёСЏС…
+char *STD_DELIMS = NULL;    // Р Р°Р·РґРµР»РёС‚РµР»Рё РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
+char *SIG_CRIT = NULL;      // РџРѕРјРµС‚РєР° Рѕ РєСЂРёС‚РёС‡РµСЃРєРѕРј СЃР±РѕРµ
+char *SIG_WARN = NULL;      // РџРѕРјРµС‚РєР° Рѕ РїСЂРµРґСѓРїСЂРµР¶РґРµРЅРёРё
+char *SIG_NORM = NULL;      // РџРѕРјРµС‚РєР° РѕР± СѓСЃРїРµС€РЅРѕРј Р·Р°РІРµСЂРµС€РµРЅРёРё РѕРїРµСЂР°С†РёРё
 //-----------------------------------------------------------------------------
-void showMsg(int type, string msg)
+string getLocTime(const char *format) // Р–СѓС‚РєР°СЏ РЎРёС€РЅР°СЏ С„СѓРЅРєС†РёСЏ
 {
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	char buffer[80];
+	time_t seconds = time(NULL);
+	tm* timeinfo = localtime(&seconds);
+	strftime(buffer, 80, format, timeinfo);
+	return string(buffer);
+}
+//-----------------------------------------------------------------------------
+void showMsg(int type, string msg, ostream &out)
+{
+	string t = "";
+	if (showDateTime) t = "(" + getLocTime("%d.%m.%Y %I:%M:%S") + ") ";
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	if (!SIG_CRIT) SIG_CRIT = "[!] ";
 	if (!SIG_WARN) SIG_WARN = "[-] ";
 	if (!SIG_NORM) SIG_NORM = "[+] ";
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	if (type == 0 && DEBUG_CRIT) 
 	{
-		cout << SIG_CRIT << msg << endl;
+		out << SIG_CRIT << t << msg << endl;
 		return;
 	}
 	if (type == 1 && DEBUG_WARN) 
 	{
-		cout << SIG_WARN << msg << endl;
+		out << SIG_WARN << t << msg << endl;
 		return;
 	}
 	if (type == 2 && DEBUG_NORM) 
 	{
-		cout << SIG_NORM << msg << endl;
+		out << SIG_NORM << t << msg << endl;
 		return;
 	}
 }
@@ -50,8 +62,12 @@ size_t getTypeSize(string type, void *val)
 //-----------------------------------------------------------------------------
 void readConfig(string path)
 {
-	// TODO: Сделать загрузку из файла конфигурации
+	// TODO: РЎРґРµР»Р°С‚СЊ Р·Р°РіСЂСѓР·РєСѓ РёР· С„Р°Р№Р»Р° РєРѕРЅС„РёРіСѓСЂР°С†РёРё
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	//logs = &cout;
+	logs = new ofstream("database.log");
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	showDateTime = true;
 	STD_DELIMS = "|";
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	SIG_CRIT = "[!] ";
@@ -63,10 +79,10 @@ void readConfig(string path)
 	typeCodes["Double"] = 2;
 	typeCodes["String"] = 3;
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	showMsg(2, "Успешно загружена конфигурация из файла " + path);
+	showMsg(2, "РЈСЃРїРµС€РЅРѕ Р·Р°РіСЂСѓР¶РµРЅР° РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ РёР· С„Р°Р№Р»Р° " + path);
 }
 //-----------------------------------------------------------------------------
-void* getValue(string type, char* value) // Переводит строку в соотв. тип
+void* getValue(string type, char* value) // РџРµСЂРµРІРѕРґРёС‚ СЃС‚СЂРѕРєСѓ РІ СЃРѕРѕС‚РІ. С‚РёРї
 {
 	void *vp = NULL;
 	switch(typeCodes[type])
@@ -94,22 +110,16 @@ void* getValue(string type, char* value) // Переводит строку в соотв. тип
 	return vp;
 }
 //-----------------------------------------------------------------------------
-void extValue(string type, void *val, ostream &out)
+string extValue(string type, void *val)
 {
 	switch (typeCodes[type]) 
 	{
-		case 1:
-			out << *((int*)val);
-			break;
-		case 2:
-			out << *((double*)val);
-			break;
-		case 3:
-			out << (char*)(val);
-			break;
-		default:
-			showMsg(0, "Несуществующий тип");
+		case 1: return to_string(*((int*)val));
+		case 2: return to_string(*((double*)val));
+		case 3: return string((char*)(val));
+		default: showMsg(0, "РќРµСЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ С‚РёРї");
 	}
+	return string("NULL");
 }
 //-----------------------------------------------------------------------------
 int rowIntCmp(Row &a, Row &b, string s)

@@ -8,7 +8,7 @@
 bool DBTable::isColExist(string colName)
 {
 	if (colHeaders.count(colName) == 0) {
-		showMsg(1, "Такого столбца не существует");
+		showMsg(1, "Столбца " + colName + " не существует");
 		return 0;
 	}
 	return 1;
@@ -59,6 +59,10 @@ string DBTable::getColType(string colName)
 //-----------------------------------------------------------------------------
 bool DBTable::readFromFile(string path, char *delims)
 {
+	tableName = "";
+	colHeaders.clear();                // Предварительная очистка таблицы
+	records.clear();
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	ifstream fin(path);                // Входной типа-CSV файл с таблицей
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	if (fin.fail()) {
@@ -111,7 +115,7 @@ bool DBTable::readFromFile(string path, char *delims)
 	return 1;    // Возвращаемые значения: 1 - успех, 0 - произошла ошибка
 }
 //-----------------------------------------------------------------------------
-void DBTable::printTable(bool withHeader)
+void DBTable::printTable(bool withHeader, ostream &out)
 {                             // TODO: сделать размеры полей вывода изменяемыми
 	if (colHeaders.size() == 0) {
 		showMsg(0, "Таблица не создана");
@@ -120,7 +124,7 @@ void DBTable::printTable(bool withHeader)
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	if (withHeader)
 	{
-		cout << tableName << endl; // Вывод названия таблицы
+		out << tableName << endl; // Вывод названия таблицы
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Вывод заголовка
 		for (It_head i = colHeaders.begin(); i != colHeaders.end(); ++i)
@@ -128,7 +132,7 @@ void DBTable::printTable(bool withHeader)
 			cout << setw(7) << i->first << ": ";
 			cout << setw(7) << i->second << " | ";
 		}
-		cout << endl;
+		out << endl;
 	}
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	if (getSize() == 0) {
@@ -141,28 +145,27 @@ void DBTable::printTable(bool withHeader)
 	{
 		for (It_body c = records[i].begin(); c != records[i].end(); ++c)
 		{
-			cout << setw(16);
-			extValue(colHeaders[c->first], c->second);
-			cout << " | ";
+			out << setw(16) << extValue(colHeaders[c->first], c->second);
+			out << " | ";
 		}
-		cout << endl;
+		out << endl;
 	}
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	cout << endl;
+	out << endl;
 	showMsg(2, "Печать таблицы завершена");
 }
 //-----------------------------------------------------------------------------
-bool DBTable::printValue(size_t rowNum, string colName)
+bool DBTable::printValue(size_t rowNum, string colName, ostream &out)
 {
 	if (!isColExist(colName)) return 0;
-	extValue(colHeaders[colName], records[rowNum][colName]);
+	out << extValue(colHeaders[colName], records[rowNum][colName]);
 	return 1;
 }
 //-----------------------------------------------------------------------------
 bool DBTable::removeRow(size_t rowNum)
 {
 	if (rowNum >= getSize()) {
-		showMsg(1, "Нет строки с таким номером");
+		showMsg(1, "Нет строки с номером " + rowNum);
 		return 0;
 	}
 	records.erase(records.begin() += rowNum);

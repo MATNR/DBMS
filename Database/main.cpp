@@ -10,6 +10,7 @@ int main()
 {
 	system("chcp 1251 > nul");
 	readConfig("config.txt");
+	// Создание и загрузка таблицы //
 	DBTable *t = new DBTable("table.txt");
 	t->printTable();
 	// EXAMPLE #0 - сортировка //
@@ -26,7 +27,10 @@ int main()
 	if (t->removeRow(2))
 		t->printTable();
 	// EXAMPLE #3 - поиск и удаление //
-	int i = t->findRow("Mark", "4.6");
+	int i;
+	i = t->findRow("Mark", "4.5");
+	i = t->findRow("Hupp", "4.4");
+	i = t->findRow("Mark", "4.6");
 	if (i >= 0) {
 		t->removeRow(i);
 		t->printTable();

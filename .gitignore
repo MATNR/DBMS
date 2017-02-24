@@ -3,6 +3,7 @@
 
 # Special files
 *.bak
+*.log
 
 # User-specific files
 *.suo

@@ -14,20 +14,30 @@ class DBTable
 	 string tableName;    // Имя таблицы
 	 Header colHeaders;   // Заголовок таблицы (имена столбцов + тип значений)
 	 vector<Row> records; // Вектор записей
-	 bool isColExist(string colName);
-	 void sort(string colName, RowCmp cmp, bool isReverse);
+	 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 bool isColExist(string colName); // Проверяет на существование столбец
+	 void sort(string colName, RowCmp cmp, bool isReverse); // Сортировка
  public:
-	 DBTable();
-	 ~DBTable();
+	 DBTable();  // Конструктор по-умолчанию
+	 ~DBTable(); // Деструктор по-умолчанию
+	 // Конструктор с заполнением из файла (с выбранными разделителями)
 	 DBTable(string path, char *delims = STD_DELIMS);
-	 size_t getSize();
-	 Row& operator[](size_t index);
-	 string getColType(string colName);
+	 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 size_t getSize();                  // Получить количество записей-строк
+	 Row& operator[](size_t index);     // Обращение к строке с номером index
+	 string getColType(string colName); // Получить имя типа столбца colName
+	 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 // Прочитать таблицу из файла (с выбранными разделителями)
 	 bool readFromFile(string path, char *delims = STD_DELIMS);
-	 void printTable(bool withHeader = true);
-	 bool printValue(size_t rowNum, string colName);
+	 // Печать таблицы (печатать заголовок да/нет, поток вывода)
+	 void printTable(bool withHeader = true, ostream &out = cout);
+	 // Печать указанного значения таблицы (с выбранным потоком вывода)
+	 bool printValue(size_t rowNum, string colName, ostream &out = cout);
+	 // Удаление записи-строки из таблицы с индексом rowNum
 	 bool removeRow(size_t rowNum);
+	 // Поиск указанного значения столбца, вернет первое вхождение или -1
 	 int findRow(string colName, char *val);
+	 // Интерфейс сортировки по столбцу colName (+ обратная сортировка да/нет)
 	 bool sortRecords(string colName, bool isReverse = false);
 };
 //-----------------------------------------------------------------------------
