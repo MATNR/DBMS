@@ -35,8 +35,12 @@ class DBTable
 	 bool printValue(size_t rowNum, string colName, ostream &out = cout);
 	 // Удаление записи-строки из таблицы с индексом rowNum
 	 bool removeRow(size_t rowNum);
+	 // Добавить в конец таблицы новую запись из строки
+	 bool insertRow(string line, char *delims = STD_DELIMS);
 	 // Поиск указанного значения столбца, вернет первое вхождение или -1
 	 int findRow(string colName, char *val);
+	 // Поиск максимального/минимального значения по столбцу (ТОЛЬКО ДЛЯ INT)
+	 int findM(string colName, bool isMin = false); // Для авто-инкремента ID
 	 // Интерфейс сортировки по столбцу colName (+ обратная сортировка да/нет)
 	 bool sortRecords(string colName, bool isReverse = false);
 };

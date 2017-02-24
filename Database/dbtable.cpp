@@ -101,7 +101,7 @@ bool DBTable::readFromFile(string path, char *delims)
 				showMsg(1, "Слишком много данных в текущей строке");
 				return 0;
 			}
-			// dataToVoid требует очистки памяти каждого val в деструкторе
+			// getValue требует очистки памяти каждого val в деструкторе
 			void *val = getValue(head[col].second, first_token);
 			rec[head[col].first] = val;
 			col++;
@@ -169,7 +169,42 @@ bool DBTable::removeRow(size_t rowNum)
 		return 0;
 	}
 	records.erase(records.begin() += rowNum);
+	showMsg(2, "Запись с номером " + to_string(rowNum) + " успешно удалена");
 	return 1; // 1 - удаление прошло успешно, 0 - записи не найдено
+}
+//-----------------------------------------------------------------------------
+bool DBTable::insertRow(string line, char *delims)
+{
+	size_t col = 0;      // Параллельно отслеживаем номер столбца
+	Row rec;             // Начинаем формировать текущую запись
+	if (line.size() > MAX_LINE) {
+		showMsg(0, "Слишком длинная строка");
+		return 0;
+	}
+	char buff[MAX_LINE]; // Буфер под строку line
+	strcpy(buff, line.c_str());
+	char *last_token = strtok(buff, delims), *token = strtok(NULL, delims);
+	while (token != NULL)
+	{
+		if (col > colHeaders.size()-1) {
+			showMsg(1, "Слишком много данных в строке: " + line);
+			return 0;
+		}
+		if (!isColExist(last_token)) return 0;
+		// getValue требует очистки памяти каждого val в деструкторе
+		void *val = getValue(colHeaders[last_token], token);
+		rec[last_token] = val;
+		col++;
+		last_token = strtok(NULL, delims);
+		token = strtok(NULL, delims);
+	}
+	if (rec.size() < colHeaders.size()) {
+		showMsg(1, "Недостаточно данных в строке: " + line);
+		return 0;
+	}
+	records.push_back(rec); // Добавляем запись в конец таблицы
+	showMsg(2, "Запись успешно добавлена");
+	return 1; // 1 - вставка прошла успешно, 0 - произошли сбои
 }
 //-----------------------------------------------------------------------------
 int DBTable::findRow(string colName, char *value)
@@ -184,6 +219,24 @@ int DBTable::findRow(string colName, char *value)
 	}
 	showMsg(1, "Запись со значением " + colName + "=" + value + " не найдена");
 	return -1; // -1 - запись в таблице не найдена
+}
+//-----------------------------------------------------------------------------
+int DBTable::findM(string colName, bool isMin) // (ТОЛЬКО ДЛЯ INT)
+{
+	if (!isColExist(colName)) return -1;
+	if (typeCodes[colHeaders[colName]] != 1) 
+	{
+		showMsg(0, "По столбцу '" + colName + "' нельзя произвести поиск");
+		return -1;
+	} 
+	size_t mi = 0;
+	for (size_t j = 1; j < records.size(); ++j)
+	{
+		int r = rowIntCmp(records[j], records[mi], colName);
+		if (isMin ? r < 0 : r > 0) 
+			mi = j;
+	}
+	return *(int*)records[mi][colName];
 }
 //-----------------------------------------------------------------------------
 void DBTable::sort(string colName, RowCmp cmp, bool isReverse)
