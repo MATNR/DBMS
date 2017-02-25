@@ -5,15 +5,6 @@
 //-----------------------------------------------------------------------------
 #include "dbtable.h"
 //-----------------------------------------------------------------------------
-bool DBTable::isColExist(string colName)
-{
-	if (colHeaders.count(colName) == 0) {
-		showMsg(1, "Столбца " + colName + " не существует");
-		return 0;
-	}
-	return 1;
-}
-//-----------------------------------------------------------------------------
 DBTable::DBTable()
 {
 	tableName = "";
@@ -40,6 +31,15 @@ DBTable::DBTable(string path, char *delims)
 	} else {
 		showMsg(2, "Успешно создана загруженная таблица");
 	}
+}
+//-----------------------------------------------------------------------------
+bool DBTable::isColExist(string colName)
+{
+	if (colHeaders.count(colName) == 0) {
+		showMsg(1, "Столбца " + colName + " не существует");
+		return 0;
+	}
+	return 1;
 }
 //-----------------------------------------------------------------------------
 size_t DBTable::getSize()
@@ -88,29 +88,30 @@ bool DBTable::readFromFile(string path, char *delims)
 		showMsg(1, "Некорректный заголовок таблицы в файле " + path);
 		return 0;
 	}
+	string msg = "Неверные данные, файл " + path + ", строка #";
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// Получаем очередную запись в цикле
-	while (fin.getline(line, 255) && strlen(line) > 1)
+	size_t count = 0;
+	while (fin.getline(line, 255))
 	{ 
-		size_t col = 0;  // Параллельно отслеживаем номер столбца
+		count++;
 		Row rec;         // Начинаем формировать текущую запись
 		first_token = strtok(line, delims);
 		while (first_token != NULL)
-		{
-			if (col > head.size()-1) {
-				showMsg(1, "Слишком много данных в текущей строке");
-				return 0;
-			}
+		{	
+			if (rec.size() > head.size()-1) { rec.clear(); break; }
 			// getValue требует очистки памяти каждого val в деструкторе
-			void *val = getValue(head[col].second, first_token);
-			rec[head[col].first] = val;
-			col++;
+			void *val = getValue(head[rec.size()].second, first_token);
+			rec[head[rec.size()].first] = val;
 			first_token = strtok(NULL, delims);
 		}
-		records.push_back(rec); // Добавляем запись в конец таблицы
+		if (rec.size() == head.size())
+			records.push_back(rec); // Добавляем запись в конец таблицы
+		else
+			showMsg(1, msg + to_string(count + 2));
 	}
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	showMsg(2, "Файл с таблицей успешно прочитан");
+	showMsg(2, "Файл " + path + " успешно прочитан");
 	fin.close(); // Закрывам файл
 	return 1;    // Возвращаемые значения: 1 - успех, 0 - произошла ошибка
 }
@@ -118,7 +119,7 @@ bool DBTable::readFromFile(string path, char *delims)
 void DBTable::printTable(bool withHeader, ostream &out)
 {                             // TODO: сделать размеры полей вывода изменяемыми
 	if (colHeaders.size() == 0) {
-		showMsg(0, "Таблица не создана");
+		showMsg(0, "Таблица " + tableName + "не создана");
 		return;
 	}
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -151,8 +152,7 @@ void DBTable::printTable(bool withHeader, ostream &out)
 		out << endl;
 	}
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	out << endl;
-	showMsg(2, "Печать таблицы завершена");
+	showMsg(2, "Печать таблицы " + tableName + " завершена");
 }
 //-----------------------------------------------------------------------------
 bool DBTable::printValue(size_t rowNum, string colName, ostream &out)
@@ -175,8 +175,7 @@ bool DBTable::removeRow(size_t rowNum)
 //-----------------------------------------------------------------------------
 bool DBTable::insertRow(string line, char *delims)
 {
-	size_t col = 0;      // Параллельно отслеживаем номер столбца
-	Row rec;             // Начинаем формировать текущую запись
+	Row rec; // Начинаем формировать текущую запись
 	if (line.size() > MAX_LINE) {
 		showMsg(0, "Слишком длинная строка");
 		return 0;
@@ -186,24 +185,21 @@ bool DBTable::insertRow(string line, char *delims)
 	char *last_token = strtok(buff, delims), *token = strtok(NULL, delims);
 	while (token != NULL)
 	{
-		if (col > colHeaders.size()-1) {
-			showMsg(1, "Слишком много данных в строке: " + line);
-			return 0;
-		}
+		if (rec.size() > colHeaders.size()-1) { rec.clear(); break; }
 		if (!isColExist(last_token)) return 0;
 		// getValue требует очистки памяти каждого val в деструкторе
 		void *val = getValue(colHeaders[last_token], token);
 		rec[last_token] = val;
-		col++;
 		last_token = strtok(NULL, delims);
 		token = strtok(NULL, delims);
 	}
-	if (rec.size() < colHeaders.size()) {
-		showMsg(1, "Недостаточно данных в строке: " + line);
+	if (rec.size() != colHeaders.size())
+	{
+		showMsg(1, "Некорректные данные в строке " + line);
 		return 0;
 	}
 	records.push_back(rec); // Добавляем запись в конец таблицы
-	showMsg(2, "Запись успешно добавлена");
+	showMsg(2, "Запись успешно добавлена в " + tableName);
 	return 1; // 1 - вставка прошла успешно, 0 - произошли сбои
 }
 //-----------------------------------------------------------------------------
