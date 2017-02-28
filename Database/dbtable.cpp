@@ -130,8 +130,8 @@ void DBTable::printTable(bool withHeader, ostream &out)
 		// Вывод заголовка
 		for (It_head i = colHeaders.begin(); i != colHeaders.end(); ++i)
 		{
-			cout << setw(7) << i->first << ": ";
-			cout << setw(7) << i->second << " | ";
+			out << setw(7) << i->first << ": ";
+			out << setw(7) << i->second << " | ";
 		}
 		out << endl;
 	}

@@ -39,7 +39,7 @@ int main()
 	string s = "Name=Алёна Баранова|Mark=5.0|Group=524|AId=";
 	s += to_string(t->findM("AId") + 1); // Авто-инкремент
 	if (t->insertRow(s, "|="))
-		t->printTable();
+		t->printTable(1, *logs);
 	// Удаление всей таблицы //
 	delete t;
 	system("pause");

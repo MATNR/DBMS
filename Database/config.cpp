@@ -160,6 +160,7 @@ bool readConfig(string path)
 		erl = "Некорректные строки: " + erl.substr(0, erl.size()-2);
 		showMsg(1, erl);
 	}
+	fin.close();
 	return 1;
 }
 //-----------------------------------------------------------------------------
