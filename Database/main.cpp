@@ -42,6 +42,7 @@ int main()
 			t->printTable(1, *logs);
 		showMsg(2, "Работа с таблицей #" + to_string(i) + " завершена");
 	}
+	// EXAMPLE #5 - прямая работа с данными //
 	if (db["students"].isColExist("Name"))
 		showMsg(0, extValue(db["students"]["Name"], db["students"][3]["Name"]));
 	db["students"].printTable();

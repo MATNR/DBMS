@@ -194,6 +194,7 @@ void* getValue(string type, char* value) // Переводит строку в �
 //-----------------------------------------------------------------------------
 string extValue(string type, void *val)
 {
+	if (!val) return "NULL";
 	switch (typeCodes[type]) 
 	{
 		case 1: 
