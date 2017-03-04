@@ -52,8 +52,15 @@ Row& DBTable::operator[](size_t index)
 	return records[index % getSize()];
 }
 //-----------------------------------------------------------------------------
+string DBTable::operator[](string colName)
+{
+	if (!isColExist(colName)) return "NULL";
+	return colHeaders[colName];
+}
+//-----------------------------------------------------------------------------
 string DBTable::getColType(string colName)
 {
+	if (!isColExist(colName)) return "NULL";
 	return colHeaders[colName];
 }
 //-----------------------------------------------------------------------------
@@ -73,7 +80,8 @@ bool DBTable::readFromFile(string path, char *delims)
 	char line[MAX_LINE], *first_token, *second_token;
 	vector<pair<string, string>> head; // Вспомогательный буфер под заголовок
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	getline(fin, tableName);           // Получили название таблицы
+	// TODO: исправить чтение имени таблицы
+	tableName = path.substr(0, path.size()-4);     // Получили название таблицы
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	fin.getline(line, MAX_LINE);       // Получили заголовок таблицы, режем его
 	first_token = strtok(line, delims);
@@ -81,7 +89,7 @@ bool DBTable::readFromFile(string path, char *delims)
 	{
 		second_token = strtok(NULL, delims);
 		colHeaders[first_token] = second_token;
-		head.push_back(pair<string, string>(first_token, second_token));
+		head.push_back(make_pair(first_token, second_token));
 		first_token = strtok(NULL, delims);
 	}
 	if (colHeaders.size() != head.size()) {
@@ -92,7 +100,7 @@ bool DBTable::readFromFile(string path, char *delims)
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// Получаем очередную запись в цикле
 	size_t count = 0;
-	while (fin.getline(line, 255))
+	while (fin.getline(line, MAX_LINE))
 	{ 
 		count++;
 		Row rec;         // Начинаем формировать текущую запись
@@ -213,7 +221,7 @@ int DBTable::findRow(string colName, char *value)
 		int i = memcmp(val, (*it)[colName], size);
 		if (i == 0) return (it-records.begin());
 	}
-	showMsg(1, "Запись со значением " + colName + "=" + value + " не найдена");
+	showMsg(1, "Запись со значением " + colName + "=" + string(value) + " не найдена");
 	return -1; // -1 - запись в таблице не найдена
 }
 //-----------------------------------------------------------------------------

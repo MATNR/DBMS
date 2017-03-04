@@ -1,5 +1,4 @@
-Students
-AId|Integer|Name|String|Group|Integer|Mark|Float
+AId:Integer|Name:String|Group:Integer|Mark:Float
 1|Михаил Кучеренко|324|5.0
 2|Виктория Лескина|524|5.0
 фвфыафа|ОШИБКА
