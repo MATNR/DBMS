@@ -8,6 +8,7 @@
 int main()
 {
 	system("chcp 1251 > nul");
+	using namespace Kernel;
 	if (!readConfig("config.txt")) return 1;
 	DBSet db("tables.txt");
 	for (size_t i = 0; i < db.getSize(); ++i)

@@ -6,11 +6,10 @@
 #ifndef DBSET_H 
 #define DBSET_H
 //-----------------------------------------------------------------------------
+#include "kernel.h"
 #include "dbtable.h"
 //-----------------------------------------------------------------------------
-typedef map<string, DBTable*> Tab;
-//-----------------------------------------------------------------------------
-class DBSet
+class Kernel::DBSet
 {
  private:
 	 string dbName;

@@ -1,26 +1,31 @@
 ﻿//-----------------------------------------------------------------------------
-// File: config.cpp
+// File: kernel.cpp
 // Auth: SnipGhost
 //                                                 Вспомогательные функции ядра
 //-----------------------------------------------------------------------------
-#include "config.h"
+#include "kernel.h"
 //-----------------------------------------------------------------------------
-ostream *logs;              // Поток вывода логов СУБД
+using namespace Kernel;             // Пространство имен ядра
+//-----------------------------------------------------------------------------
+ostream *Kernel::logs;              // Поток вывода логов СУБД
+char Kernel::STD_DELIMS[20];        // Разделители по умолчанию
+map<string, int> Kernel::typeCodes; // Коды зарегестрированных типов
+//-----------------------------------------------------------------------------
+// Локализированное глобальное зло
 //-----------------------------------------------------------------------------
 bool DEBUG_CRIT;            // Вывод критических сообщений
 bool DEBUG_WARN;            // Вывод предупреждений
 bool DEBUG_NORM;            // Вывод сообщений об успехе
 //-----------------------------------------------------------------------------
-map<string, int> typeCodes; // Коды зарегестрированных типов
 size_t PRINT_PREC;          // Точность вывода нецелых значений
 bool showDateTime;          // Показывать дату и время в сообщениях
 char TIME_FORMAT[80];       // Формат вывода даты и времени
-char STD_DELIMS[20];        // Разделители по умолчанию
+//-----------------------------------------------------------------------------
 char SIG_CRIT[10];          // Пометка о критическом сбое
 char SIG_WARN[10];          // Пометка о предупреждении
 char SIG_NORM[10];          // Пометка об успешном заверешении операции
 //-----------------------------------------------------------------------------
-string getLocTime(const char *format) // Жуткая Сишная функция
+string Kernel::getLocalTime(const char *format) // Жуткая Сишная функция
 {
 	char buffer[80];
 	time_t seconds = time(NULL);
@@ -29,10 +34,10 @@ string getLocTime(const char *format) // Жуткая Сишная функци�
 	return string(buffer);
 }
 //-----------------------------------------------------------------------------
-void showMsg(int type, string msg, ostream &out)
+void Kernel::showMsg(int type, string msg, ostream &out)
 {
 	string t = "";
-	if (showDateTime) t = "(" + getLocTime(TIME_FORMAT) + ") ";
+	if (showDateTime) t = "(" + getLocalTime(TIME_FORMAT) + ") ";
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	if (type == 0 && DEBUG_CRIT) 
 	{
@@ -51,7 +56,7 @@ void showMsg(int type, string msg, ostream &out)
 	}
 }
 //-----------------------------------------------------------------------------
-size_t getTypeSize(string type, void *val)
+size_t Kernel::getTypeSize(string type, void *val)
 {
 	switch (typeCodes[type])
 	{
@@ -62,7 +67,7 @@ size_t getTypeSize(string type, void *val)
 	}
 }
 //-----------------------------------------------------------------------------
-bool readConfig(string path)
+bool Kernel::readConfig(string path)
 {
 	// Выставление значений по-умолчанию
 	logs = &cout;
@@ -85,7 +90,7 @@ bool readConfig(string path)
 		return 0;
 	}
 	string erl = "";  // Ошибочные строки
-	size_t count = 0; // Количество строк
+	size_t count = 0;      // Количество строк
 	char line[MAX_LINE], *conf_delims = "=";
 	while (fin.getline(line, MAX_LINE))
 	{
@@ -164,7 +169,7 @@ bool readConfig(string path)
 	return 1;
 }
 //-----------------------------------------------------------------------------
-void* getValue(string type, char* value) // Переводит строку в соотв. тип
+void* Kernel::getValue(string type, char* value) // Переводит строку в соотв. тип
 {
 	void *vp = NULL;
 	switch(typeCodes[type])
@@ -192,7 +197,7 @@ void* getValue(string type, char* value) // Переводит строку в �
 	return vp;
 }
 //-----------------------------------------------------------------------------
-string extValue(string type, void *val)
+string Kernel::extValue(string type, void *val)
 {
 	if (!val) return "NULL";
 	switch (typeCodes[type]) 
@@ -202,7 +207,8 @@ string extValue(string type, void *val)
 		case 2: 
 		{
 			stringstream strstr;
-			if (PRINT_PREC != 0) strstr << fixed << setprecision(PRINT_PREC);
+			if (PRINT_PREC != 0) 
+				strstr << fixed << setprecision(PRINT_PREC);
 			strstr << *((double*)val);
 			return strstr.str();
 		}
@@ -213,17 +219,17 @@ string extValue(string type, void *val)
 	return string("NULL");
 }
 //-----------------------------------------------------------------------------
-int rowIntCmp(Row &a, Row &b, string s)
+int Kernel::rowIntCmp(Row &a, Row &b, string s)
 {
 	return (*(int*)a[s] - *(int*)b[s]);
 }
 //-----------------------------------------------------------------------------
-int rowDouCmp(Row &a, Row &b, string s)
+int Kernel::rowDouCmp(Row &a, Row &b, string s)
 {
 	return ((*(double*)a[s] - *(double*)b[s]) > 0) ? 1 : -1;
 }
 //-----------------------------------------------------------------------------
-int rowStrCmp(Row &a, Row &b, string s)
+int Kernel::rowStrCmp(Row &a, Row &b, string s)
 {
 	return strcmp((char*)a[s], (char*)b[s]);
 }

@@ -21,10 +21,10 @@
     <ClCompile Include="dbtable.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
-    <ClCompile Include="config.cpp">
+    <ClCompile Include="dbset.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
-    <ClCompile Include="dbset.cpp">
+    <ClCompile Include="kernel.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
   </ItemGroup>
@@ -32,10 +32,10 @@
     <ClInclude Include="dbtable.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="config.h">
+    <ClInclude Include="dbset.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="dbset.h">
+    <ClInclude Include="kernel.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
   </ItemGroup>

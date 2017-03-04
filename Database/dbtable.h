@@ -6,9 +6,9 @@
 #ifndef DBTABLE_H 
 #define DBTABLE_H
 //-----------------------------------------------------------------------------
-#include "config.h"
+#include "kernel.h"
 //-----------------------------------------------------------------------------
-class DBTable
+class Kernel::DBTable
 {
  private:
 	 string tableName;    // Имя таблицы
