@@ -82,12 +82,14 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dbdate.h" />
     <ClInclude Include="kernel.h" />
     <ClInclude Include="dbset.h" />
     <ClInclude Include="dbtable.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="config.txt" />
+    <Text Include="list.txt" />
     <Text Include="sbooks.txt" />
     <Text Include="students.txt" />
     <Text Include="tables.txt" />

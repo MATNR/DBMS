@@ -3,6 +3,7 @@
 // Auth: SnipGhost
 //                                                     Структура класса DBTable
 //-----------------------------------------------------------------------------
+#pragma once
 #ifndef DBTABLE_H 
 #define DBTABLE_H
 //-----------------------------------------------------------------------------
@@ -14,6 +15,7 @@ class Kernel::DBTable
 	 string tableName;    // Имя таблицы
 	 Header colHeaders;   // Заголовок таблицы (имена столбцов + тип значений)
 	 vector<Row> records; // Вектор записей
+	 friend DBSet;
 	 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	 void sort(string colName, RowCmp cmp, bool isReverse); // Сортировка
  public:
@@ -21,6 +23,7 @@ class Kernel::DBTable
 	 ~DBTable(); // Деструктор по-умолчанию
 	 // Конструктор с заполнением из файла (с выбранными разделителями)
 	 DBTable(string path, char *delims = STD_DELIMS);
+	 DBTable(Header head);
 	 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	 bool isColExist(string colName);   // Проверяет на существование столбец
 	 size_t getSize();                  // Получить количество записей-строк
@@ -31,7 +34,7 @@ class Kernel::DBTable
 	 // Прочитать таблицу из файла (с выбранными разделителями)
 	 bool readFromFile(string path, char *delims = STD_DELIMS);
 	 // Печать таблицы (печатать заголовок да/нет, поток вывода)
-	 void printTable(bool withHeader = true, ostream &out = cout);
+	 void printTable(bool withHeader = 1, ostream &out = cout, string cols = "*");
 	 // Печать указанного значения таблицы (с выбранным потоком вывода)
 	 bool printValue(size_t rowNum, string colName, ostream &out = cout);
 	 // Удаление записи-строки из таблицы с индексом rowNum

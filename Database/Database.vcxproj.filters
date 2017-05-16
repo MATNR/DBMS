@@ -38,11 +38,15 @@
     <ClInclude Include="kernel.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="dbdate.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="config.txt" />
     <Text Include="tables.txt" />
     <Text Include="students.txt" />
     <Text Include="sbooks.txt" />
+    <Text Include="list.txt" />
   </ItemGroup>
 </Project>

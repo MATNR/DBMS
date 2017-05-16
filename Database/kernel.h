@@ -3,6 +3,7 @@
 // Auth: SnipGhost
 //                                                 Вспомогательные функции ядра
 //-----------------------------------------------------------------------------
+#pragma once
 #ifndef KERNEL_H 
 #define KERNEL_H
 //-----------------------------------------------------------------------------
@@ -14,15 +15,17 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <memory>
 #include <ctime>
 #include <map>
+#include "dbdate.h"
 //-----------------------------------------------------------------------------
 namespace Kernel                                       // Пространсво имен ядра
 {
-	using namespace std; // Вкладываем STD
+	using namespace std;        // Вкладываем STD
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	class DBTable;       // Класс таблиц      (реализация: dbtable.cpp)
-	class DBSet;         // Класс базы данных (реализация: dbset.cpp)
+	class DBTable;              // Класс таблиц      (реализация: dbtable.cpp)
+	class DBSet;                // Класс базы данных (реализация: dbset.cpp)
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	const int MAX_LINE = 1023;  // Максимальная длина строки считываемого файла
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -41,23 +44,34 @@ namespace Kernel                                       // Пространсво
 	void* getValue(string type, char* value);   // Переводит строку в void*
 	string extValue(string type, void *val);    // Извлечь значение в строку
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	// Тип заголовка таблицы
-	typedef map<string, string> Header;
-	// Тип итератора по заголовку
-	typedef map<string, string>::iterator It_head;
-	// Тип одной записи в таблице
-	typedef map<string, void*> Row;
-	// Тип итератора по данным
-	typedef map<string, void*>::iterator It_body;
-	// Формат хранения таблиц в БД
-	typedef map<string, DBTable*> Tab;
-	// Указатель на компаратор
-	typedef int (*RowCmp)(Row &a, Row &b, string s);
+	typedef map<string, string> Header;              // Тип заголовка таблицы
+	typedef map<string, string>::iterator It_head;   // Тип итератора заголовка
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	int rowIntCmp(Row &a, Row &b, string s); // Компаратор для целых
-	int rowDouCmp(Row &a, Row &b, string s); // Компаратор для нецелых
-	int rowStrCmp(Row &a, Row &b, string s); // Компаратор для строковых
-}
+	class Row
+	{
+	public:
+		typedef map<string, void*>::iterator iterator;
+		typedef map<string, void*>::const_iterator const_iterator;
+		iterator begin();
+		iterator end();
+		const_iterator begin() const;
+		const_iterator end() const;
+		size_t size();
+		void clear();
+		void*& operator[](string key);
+		string extValue(string name, string type);
+	private:
+		map<string, void*> data;
+	};
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	typedef Row::iterator It_body;                   // Тип итератора по данным
+	typedef map<string, DBTable*> Tab;               // Формат хранения таблиц
+	typedef int (*RowCmp)(Row &a, Row &b, string s); // Указатель на компаратор
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	int rowIntCmp(Row &a, Row &b, string s); // Компаратор для целых ячеек
+	int rowDouCmp(Row &a, Row &b, string s); // Компаратор для нецелых ячеек
+	int rowStrCmp(Row &a, Row &b, string s); // Компаратор для строковых ячеек
+};
 //-----------------------------------------------------------------------------
 #endif /* KERNEL_H */
 //-----------------------------------------------------------------------------

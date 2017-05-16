@@ -35,6 +35,21 @@ DBTable::DBTable(string path, char *delims)
 	}
 }
 //-----------------------------------------------------------------------------
+DBTable::DBTable(Header head)
+{
+	if (head.size() < 1) {
+		tableName = "";
+		colHeaders.clear();
+		records.clear();
+		showMsg(1, "Таблицу заселектить не удалось, создана пустая");
+	} else {
+		tableName = ".selected";
+		colHeaders = head;
+		records.clear();
+		showMsg(2, "Создана незаполненная selected-таблица");
+	}
+}
+//-----------------------------------------------------------------------------
 bool DBTable::isColExist(string colName)
 {
 	if (colHeaders.count(colName) == 0) {
@@ -109,16 +124,18 @@ bool DBTable::readFromFile(string path, char *delims)
 		first_token = strtok(line, delims);
 		while (first_token != NULL)
 		{	
-			if (rec.size() > head.size()-1) { rec.clear(); break; }
+			//showMsg(0, first_token);
+			if (rec.size() > head.size()-1) { break; }
 			// getValue требует очистки памяти каждого val в деструкторе
 			void *val = getValue(head[rec.size()].second, first_token);
 			rec[head[rec.size()].first] = val;
 			first_token = strtok(NULL, delims);
 		}
+		//showMsg(0, "Столбцов Т/С: " + to_string(rec.size()) + ":" + to_string(head.size()));
 		if (rec.size() == head.size())
 			records.push_back(rec); // Добавляем запись в конец таблицы
 		else
-			showMsg(1, msg + to_string(count + 2));
+			showMsg(1, msg + to_string(count + 1));
 	}
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	showMsg(2, "Файл " + path + " успешно прочитан");
@@ -126,11 +143,24 @@ bool DBTable::readFromFile(string path, char *delims)
 	return 1;    // Возвращаемые значения: 1 - успех, 0 - произошла ошибка
 }
 //-----------------------------------------------------------------------------
-void DBTable::printTable(bool withHeader, ostream &out)
+void DBTable::printTable(bool withHeader, ostream &out, string cols)
 {                             // TODO: сделать размеры полей вывода изменяемыми
 	if (colHeaders.size() == 0) {
 		showMsg(0, "Таблица " + tableName + "не создана");
 		return;
+	}
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	map<string, bool> colums;
+	if (cols != "*") {
+		char *token, line[MAX_LINE];
+		strcpy(line, cols.c_str());
+		token = strtok(line, ", ");
+		while (token != NULL) 
+		{
+			if (isColExist(token)) colums[string(token)] = true;
+			else showMsg(1, "Столбец " + string(token) + " не найден");
+			token = strtok(NULL, ", ");
+		}
 	}
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	if (withHeader)
@@ -140,8 +170,10 @@ void DBTable::printTable(bool withHeader, ostream &out)
 		// Вывод заголовка
 		for (It_head i = colHeaders.begin(); i != colHeaders.end(); ++i)
 		{
-			out << setw(7) << i->first << ": ";
-			out << setw(7) << i->second << " | ";
+			if (colums[i->first] || cols == "*") {
+				out << setw(7) << i->first << ": ";
+				out << setw(7) << i->second << " | ";
+			}
 		}
 		out << endl;
 	}
@@ -156,8 +188,10 @@ void DBTable::printTable(bool withHeader, ostream &out)
 	{
 		for (It_body c = records[i].begin(); c != records[i].end(); ++c)
 		{
-			out << setw(16) << extValue(colHeaders[c->first], c->second);
-			out << " | ";
+			if (colums[c->first] || cols == "*") {
+				out << setw(16) << extValue(colHeaders[c->first], c->second);
+				out << " | ";
+			}
 		}
 		out << endl;
 	}

@@ -11,8 +11,6 @@ ostream *Kernel::logs;              // Поток вывода логов СУБ
 char Kernel::STD_DELIMS[20];        // Разделители по умолчанию
 map<string, int> Kernel::typeCodes; // Коды зарегестрированных типов
 //-----------------------------------------------------------------------------
-// Локализированное глобальное зло
-//-----------------------------------------------------------------------------
 bool DEBUG_CRIT;            // Вывод критических сообщений
 bool DEBUG_WARN;            // Вывод предупреждений
 bool DEBUG_NORM;            // Вывод сообщений об успехе
@@ -24,6 +22,23 @@ char TIME_FORMAT[80];       // Формат вывода даты и време�
 char SIG_CRIT[10];          // Пометка о критическом сбое
 char SIG_WARN[10];          // Пометка о предупреждении
 char SIG_NORM[10];          // Пометка об успешном заверешении операции
+//-----------------------------------------------------------------------------
+Row::iterator Row::begin()
+{ return data.begin(); }
+Row::iterator Row::end()
+{ return data.end(); }
+Row::const_iterator Row::begin() const
+{ return data.begin(); }
+Row::const_iterator Row::end() const
+{ return data.end(); }
+size_t Row::size()
+{ return data.size(); }
+void Row::clear()
+{ data.clear(); }
+void*& Row::operator[](string key)
+{ return data[key]; }
+string Row::extValue(string name, string type)
+{ return Kernel::extValue(type, data[name]); }
 //-----------------------------------------------------------------------------
 string Kernel::getLocalTime(const char *format) // Жуткая Сишная функция
 {
@@ -62,7 +77,8 @@ size_t Kernel::getTypeSize(string type, void *val)
 	{
 		case 1: return sizeof(int);
 		case 2: return sizeof(double);
-		case 3: return sizeof(char)*strlen((char*)val);
+		case 3: return sizeof(char)*(strlen((char*)val)+1);
+		case 4: return sizeof(DBDate);
 		default: return 1;
 	}
 }
@@ -83,6 +99,7 @@ bool Kernel::readConfig(string path)
 	typeCodes["Integer"] = 1;
 	typeCodes["Real"] = 2;
 	typeCodes["String"] = 3;
+	typeCodes["Date"] = 4;
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	ifstream fin(path);
 	if (fin.fail()) {
@@ -186,6 +203,12 @@ void* Kernel::getValue(string type, char* value) // Переводит стро�
 			vp = buffer;
 			break;
 		}
+		case 4:
+		{
+			DBDate *buffer = new DBDate(value);
+			vp = buffer;
+			break;
+		}
 		case 3:
 		default:
 		{
@@ -214,6 +237,8 @@ string Kernel::extValue(string type, void *val)
 		}
 		case 3: 
 			return string((char*)(val));
+		case 4:
+			return ((DBDate*)val)->toStr();
 		default: showMsg(0, "Несуществующий тип");
 	}
 	return string("NULL");

@@ -92,3 +92,99 @@ bool DBSet::createTable(string path)
 	return 1;
 }
 //-----------------------------------------------------------------------------
+bool DBSet::dropTable(string name)
+{
+	if (isTableExist(name)) {
+		tables.erase(name);
+		return 0;
+	} else {
+		showMsg(1, "Таблица " + name + " не найдена");
+		return 1;
+	}
+}
+//-----------------------------------------------------------------------------
+DBTable* DBSet::selectData(string line, string exp)
+{
+	DBTable *result = NULL;
+	char buf[MAX_LINE], *token, *last_token;
+	char *delims1 = ", |", *delims2 = ".:=";
+	strcpy(buf, line.c_str());
+	token = strtok_s(buf, delims1, &last_token);
+	Header head;
+	vector<pair<string, string>> tabCols;
+	vector<string> tabNames;
+	while (token != NULL)
+	{
+		string column = string(token);
+		string tabName = string(strtok(token, delims2));
+		string tabCol = string(strtok(NULL, delims2));
+		tabCols.push_back(make_pair(tabName, tabCol));
+		size_t i;
+		for (i = 0; i < tabNames.size(); ++i)
+			if (tabNames[i] == tabName) break;
+		if (i == tabNames.size()) tabNames.push_back(tabName);
+		string type = tables[tabName]->colHeaders[tabCol];
+		token = strtok_s(NULL, delims1, &last_token);
+		head[column] = type;
+	}
+	vector<pair<pair<string, string>, pair<string, string>>> expr;
+	strcpy(buf, exp.c_str());
+	token = strtok_s(buf, delims1, &last_token);
+	while (token != NULL)
+	{
+		string tn1 = string(strtok(token, delims2));
+		string cn1 = string(strtok(NULL, delims2));
+		string tn2 = string(strtok(NULL, delims2));
+		string cn2 = string(strtok(NULL, delims2));
+		expr.push_back(make_pair(make_pair(tn1, cn1), make_pair(tn2, cn2)));
+		token = strtok_s(NULL, delims1, &last_token);
+	}
+	result = new DBTable(head);
+	DBTable *t1 = tables[expr[0].first.first];
+	string r1 = expr[0].first.second;
+	DBTable *t2 = tables[expr[0].second.first];
+	string r2 = expr[0].second.second;
+	for (size_t i = 0; i < tables[tabNames[0]]->getSize(); ++i)
+	{
+		for (size_t j = 0; j < tables[tabNames[1]]->getSize(); ++j)
+		{
+			string s1 = extValue(t1->colHeaders[r1], t1->records[i][r1]);
+			string s2 = extValue(t2->colHeaders[r2], t2->records[j][r2]);
+			showMsg(4, s1 + " // " + s2);
+			showMsg(4, t1->colHeaders[r1]);
+			showMsg(4, t2->colHeaders[r2]);
+			if (s1 == s2)
+			{
+				Row rec;
+				showMsg(4, "i=" + to_string(i) + " j=" + to_string(j));
+				for (size_t k = 0; k < tabCols.size(); ++k)
+				{
+					string c = tabCols[k].first + "." + tabCols[k].second;
+					DBTable *t = tables[tabCols[k].first];
+					string &type = t->colHeaders[tabCols[k].second];
+					if (tabNames[0] == tabCols[k].first)
+					{
+						size_t size = getTypeSize(type, t->records[i][tabCols[k].second]);
+						rec[c] = (void*)malloc(size);
+						memcpy(rec[c], t->records[i][tabCols[k].second], size);
+					}
+					else if (tabNames[1] == tabCols[k].first)
+					{
+						size_t size = getTypeSize(type, t->records[j][tabCols[k].second]);
+						rec[c] = (void*)malloc(size);
+						memcpy(rec[c], t->records[j][tabCols[k].second], size);
+					}
+					else
+					{
+						rec[c] = NULL;
+						showMsg(1, "Can't resolve column: " + tabCols[k].first);
+					}
+				}
+				result->records.push_back(rec);
+			}
+		}
+	}
+	showMsg(2, "Выборка по таблицам готова");
+	return result;
+}
+//-----------------------------------------------------------------------------
