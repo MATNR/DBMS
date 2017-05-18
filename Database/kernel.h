@@ -39,10 +39,14 @@ namespace Kernel                                       // Пространсво
 	 // Вывести сообщение (msg) указанного типа (type) в указанный поток (out)
 	void showMsg(int type, string msg, ostream &out = *logs);
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	size_t getTypeSize(string type, void *val); // Получить размер типа (байт)
-	bool readConfig(string path);               // Загрузить конфигурацию
-	void* getValue(string type, const char* value); // Переводит строку в void*
-	string extValue(string type, void *val);    // Извлечь значение в строку
+	// Получить размер типа (байт) в конкретной ячейке
+	size_t getTypeSize(string type, void *val);
+	// Считать конфигурацию из указанного файла path
+	bool readConfig(string path);
+	// Переводит строку value в void* (выделяет память)
+	void* getValue(string type, const char* value);
+	// Извлечь значение из val с типом type в строку
+	string extValue(string type, void *val);
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	typedef map<string, string> Header;              // Тип заголовка таблицы
 	typedef map<string, string>::iterator It_head;   // Тип итератора заголовка
