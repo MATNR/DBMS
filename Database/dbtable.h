@@ -42,11 +42,15 @@ class Kernel::DBTable
 	 // Добавить в конец таблицы новую запись из строки
 	 bool insertRow(string line, char *delims = STD_DELIMS);
 	 // Поиск указанного значения столбца, вернет первое вхождение или -1
-	 int findRow(string colName, char *val);
+	 int findRow(string colName, const char *val, int start = 0);
 	 // Поиск максимального/минимального значения по столбцу (ТОЛЬКО ДЛЯ INT)
 	 int findM(string colName, bool isMin = false); // Для авто-инкремента ID
 	 // Интерфейс сортировки по столбцу colName (+ обратная сортировка да/нет)
 	 bool sortRecords(string colName, bool isReverse = false);
+	 // Сравнивает значения данных в столбце colName двух строк таблицы 
+	 bool ValueIsEqual(string colName, void* objA, void* objB);
+	 // Возвращае вектор из строк где значение столбца равно value
+	 vector<Row> getSelfRows(string colName, const char* value);
 };
 //-----------------------------------------------------------------------------
 #endif /* DBTABLE_H */

@@ -186,7 +186,7 @@ bool Kernel::readConfig(string path)
 	return 1;
 }
 //-----------------------------------------------------------------------------
-void* Kernel::getValue(string type, char* value) // Переводит строку в соотв. тип
+void* Kernel::getValue(string type, const char* value)
 {
 	void *vp = NULL;
 	switch(typeCodes[type])

@@ -41,7 +41,7 @@ namespace Kernel                                       // Пространсво
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	size_t getTypeSize(string type, void *val); // Получить размер типа (байт)
 	bool readConfig(string path);               // Загрузить конфигурацию
-	void* getValue(string type, char* value);   // Переводит строку в void*
+	void* getValue(string type, const char* value); // Переводит строку в void*
 	string extValue(string type, void *val);    // Извлечь значение в строку
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	typedef map<string, string> Header;              // Тип заголовка таблицы

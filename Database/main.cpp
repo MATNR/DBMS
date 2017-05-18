@@ -22,7 +22,7 @@ int main()
 
 	DBSet db("tables.txt"); // Задаем базу данных по файлу списка таблиц
 
-	// EXAPLE #0 - произвольный SELECT по двум таблицам
+	// EXAMPLE #0 - произвольный SELECT по двум таблицам
 	db["students"].sortRecords("AId"); // Отсортируем для корректной работы
 	string cols = "list.AId, list.BookId, list.StuId, students.Name";
 	string exp = "list.StuId=students.AId";
@@ -44,7 +44,7 @@ int main()
 			t->printTable();
 		// EXAMPLE #2 - печать значения //
 		if (t->printValue(2, "Name"))
-			showMsg(0, "");
+			showMsg(0, "Успешно распечатал значение [2][Name]");
 		// EXAMPLE #3 - удаление записи //
 		if (t->removeRow(2))
 			t->printTable();
@@ -63,13 +63,26 @@ int main()
 			t->printTable();
 		showMsg(2, "Работа с таблицей #" + to_string(i) + " завершена");
 	}
+
 	// EXAMPLE #6 - прямая работа с данными //
 	if (db["students"].isColExist("Name")) {
 		string val = extValue(db["students"]["Name"], db["students"][3]["Name"]);
 		showMsg(2, "[students : 3 : Name]: " + val);
 	}
 
-	// EXAMPLE #7 - другой вариант обращения к таблицам в БД
+	// EXAMPLE #7 - получение всех совпадений в векторе
+	vector<Row> v = db["students"].getSelfRows("Name", "Антон Андреев");
+	for (auto i = v.begin(); i != v.end(); ++i)
+	{
+		for (auto j = i->begin(); j != i->end(); ++j)
+		{
+			string v = extValue(db["students"][j->first], j->second);
+			showMsg(0, j->first + " : " + v, cout);
+		}
+		showMsg(0, "End of Row", cout);
+	}
+
+	// EXAMPLE #8 - другой вариант обращения к таблицам в БД
 	db["students"].printTable(true, cout, "AId, Group");
 	db.dropTable("students");
 	db["students"].printTable();

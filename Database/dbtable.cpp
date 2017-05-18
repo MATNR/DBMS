@@ -247,11 +247,11 @@ bool DBTable::insertRow(string line, char *delims)
 	return 1; // 1 - вставка прошла успешно, 0 - произошли сбои
 }
 //-----------------------------------------------------------------------------
-int DBTable::findRow(string colName, char *value)
+int DBTable::findRow(string colName, const char *value, int start)
 {
 	if (!isColExist(colName)) return -1;
 	void *val = getValue(getColType(colName), value);
-	for (auto it = records.begin(); it != records.end(); ++it)
+	for (auto it = records.begin()+start; it != records.end(); ++it)
 	{
 		int size = getTypeSize(colHeaders[colName], val);
 		int i = memcmp(val, (*it)[colName], size);
@@ -314,5 +314,27 @@ bool DBTable::sortRecords(string colName, bool isReverse)
 	}
 	showMsg(2, "Таблица успешно отсортированна по столбцу '" + colName + "'");
 	return 1;
+}
+//-----------------------------------------------------------------------------
+bool DBTable::ValueIsEqual(string colName, void* objA, void* objB)
+{
+	string type = colHeaders[colName];
+	string s1 = extValue(type, objA);
+	string s2 = extValue(type, objB);
+	return (s1 == s2);
+}
+//-----------------------------------------------------------------------------
+vector<Row> DBTable::getSelfRows(string colName, const char* value)
+{
+	vector<Row> res;
+	int index = -1;
+	do
+	{
+		showMsg(3, to_string(index));
+		index = findRow(colName, value, index+1);
+		showMsg(3, to_string(index));
+		if (index != -1) res.push_back(records[index]);
+	} while (index != -1);
+	return res;
 }
 //-----------------------------------------------------------------------------
