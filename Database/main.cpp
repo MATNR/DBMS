@@ -79,7 +79,7 @@ int main()
 			string v = extValue(db["students"][j->first], j->second);
 			showMsg(0, j->first + " : " + v, cout);
 		}
-		showMsg(0, "End of Row", cout); // Вывод в консоль
+		showMsg(3, "End of Row", cout); // Вывод в консоль
 	}
 
 	// EXAMPLE #8 - другой вариант обращения к таблицам в БД

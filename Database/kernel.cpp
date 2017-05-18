@@ -69,6 +69,9 @@ void Kernel::showMsg(int type, string msg, ostream &out)
 		out << SIG_NORM << t << msg << endl;
 		return;
 	}
+	#ifdef DEBUG_AMSG
+		out << "[ ] " << t << msg << endl;
+	#endif
 }
 //-----------------------------------------------------------------------------
 size_t Kernel::getTypeSize(string type, void *val)
