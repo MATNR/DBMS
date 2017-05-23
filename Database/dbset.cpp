@@ -45,7 +45,11 @@ size_t DBSet::getSize()
 //-----------------------------------------------------------------------------
 DBTable& DBSet::operator[](string name)
 {
-	if (!isTableExist(name)) exit(0); // Критический сбой
+	if (!isTableExist(name)) {
+		showMsg(0, "Попытка доступа к несуществующей таблице: " + name);
+		DBTable *err_tab = new DBTable();
+		tables[name] = err_tab;
+	}
 	return *tables[name];
 }
 //-----------------------------------------------------------------------------
@@ -95,6 +99,7 @@ bool DBSet::createTable(string path)
 bool DBSet::dropTable(string name)
 {
 	if (isTableExist(name)) {
+		delete tables[name];
 		tables.erase(name);
 		return 0;
 	} else {

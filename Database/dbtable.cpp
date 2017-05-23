@@ -131,7 +131,6 @@ bool DBTable::readFromFile(string path, char *delims)
 			rec[head[rec.size()].first] = val;
 			first_token = strtok(NULL, delims);
 		}
-		//showMsg(0, "Столбцов Т/С: " + to_string(rec.size()) + ":" + to_string(head.size()));
 		if (rec.size() == head.size())
 			records.push_back(rec); // Добавляем запись в конец таблицы
 		else
@@ -146,7 +145,7 @@ bool DBTable::readFromFile(string path, char *delims)
 void DBTable::printTable(bool withHeader, ostream &out, string cols)
 {                             // TODO: сделать размеры полей вывода изменяемыми
 	if (colHeaders.size() == 0) {
-		showMsg(0, "Таблица " + tableName + "не создана");
+		showMsg(0, "Таблица " + tableName + "совершенно пуста");
 		return;
 	}
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

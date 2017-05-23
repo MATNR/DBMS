@@ -87,6 +87,8 @@ int main()
 	db.dropTable("students");
 	db["students"].printTable();
 
+	showMsg(0, "Конец показательной программы", cout);
+
 	system("pause");
 	return 0;
 }
