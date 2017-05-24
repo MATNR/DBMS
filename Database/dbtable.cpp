@@ -7,7 +7,26 @@
 //-----------------------------------------------------------------------------
 using namespace Kernel;
 //-----------------------------------------------------------------------------
-enum color { BLACK = 0, BLUE_B, GREEN_B, Cyan, Red_B, Magenta, Brown, GRAY_A, GRAY_B, BLUE_A, GREEN_A, LightCyan, RED_A, LightMagenta, YELLOW, WHITE };
+enum color // Консольные цвета
+{ 
+	BLACK = 0,
+	BLUE_B,
+	GREEN_B,
+	Cyan,
+	Red_B,
+	Magenta,
+	Brown,
+	GRAY_A,
+	GRAY_B,
+	BLUE_A,
+	GREEN_A,
+	LightCyan,
+	RED_A,
+	LightMagenta,
+	YELLOW,
+	WHITE 
+};
+//-----------------------------------------------------------------------------
 void setColor(color text, color background)  
 {
    HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -149,7 +168,7 @@ bool DBTable::readFromFile(string path, char *delims)
 	return 1;    // Возвращаемые значения: 1 - успех, 0 - произошла ошибка
 }
 //-----------------------------------------------------------------------------
-void DBTable::printTable(bool withHeader, ostream &out, string cols, int colN) //Вывод default таблицы | colN - количество колонок при выводе нескольких колонок (например, 3 или 5. Не ниже 0!)
+void DBTable::printTable(bool withHeader, ostream &out, string cols)
 {                             // TODO: сделать размеры полей вывода изменяемыми
 	out << endl; //Отступ от верхушки таблиц
 	if (colHeaders.size() == 0) {
@@ -158,6 +177,7 @@ void DBTable::printTable(bool withHeader, ostream &out, string cols, int colN) /
 	}
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	map<string, bool> colums;
+	int colN = 0;
 	if (cols != "*") {
 		char *token, line[MAX_LINE];
 		strcpy(line, cols.c_str());
@@ -167,8 +187,12 @@ void DBTable::printTable(bool withHeader, ostream &out, string cols, int colN) /
 			if (isColExist(token)) colums[string(token)] = true;
 			else showMsg(1, "Столбец " + string(token) + " не найден");
 			token = strtok(NULL, ", ");
+			++colN;
 		}
 	}
+	else colN = -1;
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// TODO: ПЕРЕДЕЛАЙТЕ 26/20 в параметр, объявленный в одном месте
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	if (withHeader)
 	{   

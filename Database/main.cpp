@@ -86,8 +86,8 @@ int main()
 	}
 
 	// EXAMPLE #8 - другой вариант обращения к таблицам в БД
-	db["students"].printTable(true, cout, "AId, Group", 2); //Кроме названия колонок указывается и их количество (потому что Тагиру было лень высчитывать кол-во колонок из string).
-	db.dropTable("students");
+	db["students"].printTable(true, cout, "AId, Group"); // Тагиру лень
+	db.dropTable("students");                            // А мне норм
 	db["students"].printTable();
 
 	showMsg(0, "Конец показательной программы", cout);

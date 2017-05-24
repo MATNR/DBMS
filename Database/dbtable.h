@@ -34,7 +34,7 @@ class Kernel::DBTable
 	 // Прочитать таблицу из файла (с выбранными разделителями)
 	 bool readFromFile(string path, char *delims = STD_DELIMS);
 	 // Печать таблицы (печатать заголовок да/нет, поток вывода)
-	 void printTable(bool withHeader = 1, ostream &out = cout, string cols = "*", int colN = -1);
+	 void printTable(bool withHeader = 1, ostream &out = cout, string cols = "*");
 	 // Печать указанного значения таблицы (с выбранным потоком вывода)
 	 bool printValue(size_t rowNum, string colName, ostream &out = cout);
 	 // Удаление записи-строки из таблицы с индексом rowNum
