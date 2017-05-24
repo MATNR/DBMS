@@ -7,6 +7,13 @@
 //-----------------------------------------------------------------------------
 using namespace Kernel;
 //-----------------------------------------------------------------------------
+enum color { BLACK = 0, BLUE_B, GREEN_B, Cyan, Red_B, Magenta, Brown, GRAY_A, GRAY_B, BLUE_A, GREEN_A, LightCyan, RED_A, LightMagenta, YELLOW, WHITE };
+void setColor(color text, color background)  
+{
+   HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+   SetConsoleTextAttribute(hStdOut, (WORD)((background << 4) | text));
+}
+//-----------------------------------------------------------------------------
 DBTable::DBTable()
 {
 	tableName = "";
@@ -142,8 +149,9 @@ bool DBTable::readFromFile(string path, char *delims)
 	return 1;    // Возвращаемые значения: 1 - успех, 0 - произошла ошибка
 }
 //-----------------------------------------------------------------------------
-void DBTable::printTable(bool withHeader, ostream &out, string cols)
+void DBTable::printTable(bool withHeader, ostream &out, string cols, int colN) //Вывод default таблицы | colN - количество колонок при выводе нескольких колонок (например, 3 или 5. Не ниже 0!)
 {                             // TODO: сделать размеры полей вывода изменяемыми
+	out << endl; //Отступ от верхушки таблиц
 	if (colHeaders.size() == 0) {
 		showMsg(0, "Таблица " + tableName + "совершенно пуста");
 		return;
@@ -163,15 +171,49 @@ void DBTable::printTable(bool withHeader, ostream &out, string cols)
 	}
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	if (withHeader)
-	{
-		out << tableName << endl; // Вывод названия таблицы
+	{   
+		if(INTERFACE_THEME == 1) {
+			setColor(WHITE, GRAY_B); //Белый текст на тёмно-сером фоне
+			bool nameShowsFirst = true; //Название показывается впервые
+
+			if (colN == -1){ //Если выводим все колоночки
+				for (It_head i = colHeaders.begin(); i != colHeaders.end(); ++i) {
+					if (nameShowsFirst == true) { 
+						out << left << setw(26) << tableName; nameShowsFirst = false; //20
+					} else { 
+						out << setw(26) << ""; //20
+					}
+				}
+			} else { //Если выводим определённое количество колоночек
+				for (int i = 0; i < colN; i++) {
+					if (nameShowsFirst == true) { 
+						out << left << setw(26) << tableName; nameShowsFirst = false; //20
+					} else { 
+						out << setw(26) << ""; //20
+					}
+				}
+			}
+			setColor(WHITE, BLACK); //Белый текст на чёрном фоне
+			out << right << endl;
+
+	    } else if(INTERFACE_THEME == 0) {
+				out << tableName << endl;
+		}
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Вывод заголовка
-		for (It_head i = colHeaders.begin(); i != colHeaders.end(); ++i)
-		{
+		for (It_head i = colHeaders.begin(); i != colHeaders.end(); ++i) {
 			if (colums[i->first] || cols == "*") {
-				out << setw(7) << i->first << ": ";
-				out << setw(7) << i->second << " | ";
+				if(INTERFACE_THEME == 1) {
+					setColor(BLACK, GRAY_A); //Чёрный текст на сером фоне
+					out << setw(14) << i->first << ": ";   // Вывод названия столбца //8
+					out << setw(7) << i->second << "  ";  // Тип выведенного столбца //7
+					setColor(BLACK, GRAY_B); //Чёрный текст на тёмно-сером фоне
+					out << " ";
+					setColor(WHITE, BLACK); //Белый текст на чёрном фоне
+				} else if(INTERFACE_THEME == 0) {
+					out << setw(14) << i->first << ": ";
+					out << setw(7) << i->second << " | ";
+				}
 			}
 		}
 		out << endl;
@@ -188,20 +230,29 @@ void DBTable::printTable(bool withHeader, ostream &out, string cols)
 		for (It_body c = records[i].begin(); c != records[i].end(); ++c)
 		{
 			if (colums[c->first] || cols == "*") {
-				out << setw(16) << extValue(colHeaders[c->first], c->second);
-				out << " | ";
+				if(INTERFACE_THEME == 1) {
+					setColor(BLACK, WHITE); //Чёрный текст на белом фоне
+					out << setw(23) << extValue(colHeaders[c->first], c->second) << "  "; //17
+					setColor(BLACK, GRAY_B); //Чёрный текст на тёмно-сером фоне
+					out << " ";
+					setColor(WHITE, BLACK); //Белый текст на чёрном фоне
+				} else if(INTERFACE_THEME == 0) {
+					out << setw(23) << extValue(colHeaders[c->first], c->second);
+					out << " | ";
+				}
 			}
 		}
 		out << endl;
 	}
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	out << endl; //Отступ от таблиц
 	showMsg(2, "Печать таблицы " + tableName + " завершена");
 }
 //-----------------------------------------------------------------------------
 bool DBTable::printValue(size_t rowNum, string colName, ostream &out)
 {
 	if (!isColExist(colName)) return 0;
-	out << extValue(colHeaders[colName], records[rowNum][colName]);
+	out << extValue(colHeaders[colName], records[rowNum][colName]) << endl;
 	return 1;
 }
 //-----------------------------------------------------------------------------

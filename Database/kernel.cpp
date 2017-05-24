@@ -15,6 +15,8 @@ bool DEBUG_CRIT;            // Вывод критических сообщен�
 bool DEBUG_WARN;            // Вывод предупреждений
 bool DEBUG_NORM;            // Вывод сообщений об успехе
 //-----------------------------------------------------------------------------
+bool Kernel::INTERFACE_THEME;		// Стиль вывода таблицы
+//-----------------------------------------------------------------------------
 size_t PRINT_PREC;          // Точность вывода нецелых значений
 bool showDateTime;          // Показывать дату и время в сообщениях
 char TIME_FORMAT[80];       // Формат вывода даты и времени
@@ -90,6 +92,7 @@ bool Kernel::readConfig(string path)
 {
 	// Выставление значений по-умолчанию
 	logs = &cout;
+	INTERFACE_THEME = 0;
 	DEBUG_CRIT = 1;
 	DEBUG_WARN = 1;
 	DEBUG_NORM = 1; 
@@ -139,6 +142,12 @@ bool Kernel::readConfig(string path)
 		if (strcmp(key, "LOGS") == 0) {
 			if (strcmp(val, "cout") == 0) logs = &cout;
 			else logs = new ofstream(val);
+			continue;
+		}
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		if (strcmp(key, "INTERFACE_THEME") == 0) {
+			if (strcmp(val, "standart") == 0) INTERFACE_THEME = 0;
+			else if (strcmp(val, "new") == 0) INTERFACE_THEME = 1;
 			continue;
 		}
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -43,8 +43,11 @@ int main()
 		if (t->sortRecords("Mark"))
 			t->printTable();
 		// EXAMPLE #2 - печать значения //
-		if (t->printValue(2, "Name"))
+		if (t->printValue(2, "Name")) {
 			showMsg(0, "Успешно распечатал значение [2][Name]");
+		} else {
+			showMsg(0, "Значение [2][Name] не найдено");
+		}
 		// EXAMPLE #3 - удаление записи //
 		if (t->removeRow(2))
 			t->printTable();
@@ -83,7 +86,7 @@ int main()
 	}
 
 	// EXAMPLE #8 - другой вариант обращения к таблицам в БД
-	db["students"].printTable(true, cout, "AId, Group");
+	db["students"].printTable(true, cout, "AId, Group", 2); //Кроме названия колонок указывается и их количество (потому что Тагиру было лень высчитывать кол-во колонок из string).
 	db.dropTable("students");
 	db["students"].printTable();
 
