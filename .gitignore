@@ -4,6 +4,7 @@
 # Special files
 *.bak
 *.log
+[Pp]ersonal/
 
 # User-specific files
 *.suo
