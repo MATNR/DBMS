@@ -11,16 +11,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{F727BF3D-FE2B-4C25-BB07-FF14BEAD9DFB}</ProjectGuid>
+    <ProjectGuid>{0E0F6D50-77DC-4633-9F65-35E91389B289}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Database</RootNamespace>
+    <RootNamespace>Project</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v110</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -49,7 +49,7 @@
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -76,26 +76,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="kernel.cpp" />
-    <ClCompile Include="dbset.cpp" />
-    <ClCompile Include="dbtable.cpp" />
-    <ClCompile Include="main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="dbdate.h" />
-    <ClInclude Include="kernel.h" />
-    <ClInclude Include="dbset.h" />
-    <ClInclude Include="dbtable.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="config.txt" />
-    <Text Include="list.txt" />
-    <Text Include="sbooks.txt" />
-    <Text Include="students.txt" />
-    <Text Include="tables.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <Library Include="..\Debug\Library.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Database\dbdate.h" />
+    <ClInclude Include="..\Database\dbset.h" />
+    <ClInclude Include="..\Database\dbtable.h" />
+    <ClInclude Include="..\Database\kernel.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Personal\main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

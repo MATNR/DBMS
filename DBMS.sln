@@ -3,6 +3,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Database", "Database\Database.vcxproj", "{F727BF3D-FE2B-4C25-BB07-FF14BEAD9DFB}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Library", "Library\Library.vcxproj", "{6C7CFB48-F2F9-4C6B-9EC8-7BC331350739}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Project", "Project\Project.vcxproj", "{0E0F6D50-77DC-4633-9F65-35E91389B289}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -13,6 +17,14 @@ Global
 		{F727BF3D-FE2B-4C25-BB07-FF14BEAD9DFB}.Debug|Win32.Build.0 = Debug|Win32
 		{F727BF3D-FE2B-4C25-BB07-FF14BEAD9DFB}.Release|Win32.ActiveCfg = Release|Win32
 		{F727BF3D-FE2B-4C25-BB07-FF14BEAD9DFB}.Release|Win32.Build.0 = Release|Win32
+		{6C7CFB48-F2F9-4C6B-9EC8-7BC331350739}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6C7CFB48-F2F9-4C6B-9EC8-7BC331350739}.Debug|Win32.Build.0 = Debug|Win32
+		{6C7CFB48-F2F9-4C6B-9EC8-7BC331350739}.Release|Win32.ActiveCfg = Release|Win32
+		{6C7CFB48-F2F9-4C6B-9EC8-7BC331350739}.Release|Win32.Build.0 = Release|Win32
+		{0E0F6D50-77DC-4633-9F65-35E91389B289}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0E0F6D50-77DC-4633-9F65-35E91389B289}.Debug|Win32.Build.0 = Debug|Win32
+		{0E0F6D50-77DC-4633-9F65-35E91389B289}.Release|Win32.ActiveCfg = Release|Win32
+		{0E0F6D50-77DC-4633-9F65-35E91389B289}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -49,4 +49,7 @@
     <Text Include="sbooks.txt" />
     <Text Include="list.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\Debug\Library.lib" />
+  </ItemGroup>
 </Project>
