@@ -87,6 +87,13 @@
   <ItemGroup>
     <ClCompile Include="Personal\main.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="config.txt" />
+    <Text Include="list.txt" />
+    <Text Include="sbooks.txt" />
+    <Text Include="students.txt" />
+    <Text Include="tables.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

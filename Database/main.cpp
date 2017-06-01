@@ -90,6 +90,10 @@ int main()
 	db.dropTable("students");                            // А мне норм
 	db["students"].printTable();
 
+	// EXAMPLE #9 - сохранение таблиц в файлы
+	ofstream file("save_table.txt");
+	db["list"].printTable(true, file, "*", true);
+
 	showMsg(0, "Конец показательной программы", cout);
 
 	system("pause");

@@ -76,6 +76,11 @@ DBTable::DBTable(Header head)
 	}
 }
 //-----------------------------------------------------------------------------
+Header DBTable::getColHeaders()
+{
+	return colHeaders;
+}
+//-----------------------------------------------------------------------------
 bool DBTable::isColExist(string colName)
 {
 	if (colHeaders.count(colName) == 0) {
@@ -168,9 +173,9 @@ bool DBTable::readFromFile(string path, char *delims)
 	return 1;    // Возвращаемые значения: 1 - успех, 0 - произошла ошибка
 }
 //-----------------------------------------------------------------------------
-void DBTable::printTable(bool withHeader, ostream &out, string cols)
-{                             // TODO: сделать размеры полей вывода изменяемыми
-	out << endl; //Отступ от верхушки таблиц
+void DBTable::printTable(bool withHeader, ostream &out, string cols, bool save)
+{
+	if (!save) out << endl; //Отступ от верхушки таблиц
 	if (colHeaders.size() == 0) {
 		showMsg(0, "Таблица " + tableName + "совершенно пуста");
 		return;
@@ -192,51 +197,74 @@ void DBTable::printTable(bool withHeader, ostream &out, string cols)
 	}
 	else colN = -1;
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	// TODO: ПЕРЕДЕЛАЙТЕ 26/20 в параметр, объявленный в одном месте
+	int WIDTH = 26;
+	int WIDTH1 = WIDTH/2;
+	int WIDTH2 = WIDTH1 - 5;
+	int WIDTH3 = WIDTH - 3;
+	string DL1 = ": ";
+	string DL2 = "  ";
+	if (save) 
+	{
+		WIDTH = 0;
+		WIDTH1 = 0;
+		WIDTH2 = 0;
+		WIDTH3 = 0;
+		DL1 = ":";
+		DL2 = "|";
+	}
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	if (withHeader)
 	{   
-		if(INTERFACE_THEME == 1) {
+		if(INTERFACE_THEME == 1) 
+		{
 			setColor(WHITE, GRAY_B); //Белый текст на тёмно-сером фоне
 			bool nameShowsFirst = true; //Название показывается впервые
-
-			if (colN == -1){ //Если выводим все колоночки
-				for (It_head i = colHeaders.begin(); i != colHeaders.end(); ++i) {
-					if (nameShowsFirst == true) { 
-						out << left << setw(26) << tableName; nameShowsFirst = false; //20
+			if (colN == -1)  //Если выводим все колоночки
+			{
+				for (It_head i = colHeaders.begin(); i != colHeaders.end(); ++i) 
+				{
+					if (nameShowsFirst == true) 
+					{ 
+						if (!save) out << left << setw(WIDTH) << tableName; 
+						nameShowsFirst = false;
 					} else { 
-						out << setw(26) << ""; //20
+						out << setw(WIDTH) << "";
 					}
 				}
 			} else { //Если выводим определённое количество колоночек
-				for (int i = 0; i < colN; i++) {
-					if (nameShowsFirst == true) { 
-						out << left << setw(26) << tableName; nameShowsFirst = false; //20
+				for (int i = 0; i < colN; i++) 
+				{
+					if (nameShowsFirst == true) 
+					{ 
+						if (!save) out << left << setw(WIDTH) << tableName; 
+						nameShowsFirst = false;
 					} else { 
-						out << setw(26) << ""; //20
+						out << setw(WIDTH) << "";
 					}
 				}
 			}
 			setColor(WHITE, BLACK); //Белый текст на чёрном фоне
-			out << right << endl;
-
-	    } else if(INTERFACE_THEME == 0) {
+			if (!save) out << right << endl;
+	    } 
+		else if(INTERFACE_THEME == 0) {
 				out << tableName << endl;
 		}
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Вывод заголовка
-		for (It_head i = colHeaders.begin(); i != colHeaders.end(); ++i) {
-			if (colums[i->first] || cols == "*") {
+		for (It_head i = colHeaders.begin(); i != colHeaders.end(); ++i) 
+		{
+			if (colums[i->first] || cols == "*") 
+			{
 				if(INTERFACE_THEME == 1) {
 					setColor(BLACK, GRAY_A); //Чёрный текст на сером фоне
-					out << setw(14) << i->first << ": ";   // Вывод названия столбца //8
-					out << setw(7) << i->second << "  ";  // Тип выведенного столбца //7
+					out << setw(WIDTH1) << i->first << DL1;
+					out << setw(WIDTH2) << i->second << DL2;
 					setColor(BLACK, GRAY_B); //Чёрный текст на тёмно-сером фоне
-					out << " ";
+					if (!save) out << " ";
 					setColor(WHITE, BLACK); //Белый текст на чёрном фоне
 				} else if(INTERFACE_THEME == 0) {
-					out << setw(14) << i->first << ": ";
-					out << setw(7) << i->second << " | ";
+					out << setw(WIDTH1) << i->first << DL1;
+					out << setw(WIDTH2) << i->second << DL2;
 				}
 			}
 		}
@@ -256,13 +284,13 @@ void DBTable::printTable(bool withHeader, ostream &out, string cols)
 			if (colums[c->first] || cols == "*") {
 				if(INTERFACE_THEME == 1) {
 					setColor(BLACK, WHITE); //Чёрный текст на белом фоне
-					out << setw(23) << extValue(colHeaders[c->first], c->second) << "  "; //17
+					out << setw(WIDTH3) << extValue(colHeaders[c->first], c->second) << DL2;
 					setColor(BLACK, GRAY_B); //Чёрный текст на тёмно-сером фоне
-					out << " ";
+					if (!save) out << " ";
 					setColor(WHITE, BLACK); //Белый текст на чёрном фоне
 				} else if(INTERFACE_THEME == 0) {
-					out << setw(23) << extValue(colHeaders[c->first], c->second);
-					out << " | ";
+					out << setw(WIDTH3) << extValue(colHeaders[c->first], c->second);
+					out << DL1;
 				}
 			}
 		}

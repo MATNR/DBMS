@@ -36,4 +36,11 @@
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="sbooks.txt" />
+    <Text Include="students.txt" />
+    <Text Include="tables.txt" />
+    <Text Include="list.txt" />
+    <Text Include="config.txt" />
+  </ItemGroup>
 </Project>

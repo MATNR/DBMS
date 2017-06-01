@@ -25,6 +25,7 @@ class Kernel::DBTable
 	 DBTable(string path, char *delims = STD_DELIMS);
 	 DBTable(Header head);
 	 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 Header getColHeaders();            // Возвращает копию заголовка таблицы
 	 bool isColExist(string colName);   // Проверяет на существование столбец
 	 size_t getSize();                  // Получить количество записей-строк
 	 Row& operator[](size_t index);     // Обращение к строке с номером index
@@ -34,7 +35,10 @@ class Kernel::DBTable
 	 // Прочитать таблицу из файла (с выбранными разделителями)
 	 bool readFromFile(string path, char *delims = STD_DELIMS);
 	 // Печать таблицы (печатать заголовок да/нет, поток вывода)
-	 void printTable(bool withHeader = 1, ostream &out = cout, string cols = "*");
+	 void printTable(bool withHeader = 1, ostream &out = cout, 
+		             string cols = "*", bool save = 0);
+	 // Сохранение таблицы в поток out
+	 bool DBTable::writeTable(ostream &out = cout);
 	 // Печать указанного значения таблицы (с выбранным потоком вывода)
 	 bool printValue(size_t rowNum, string colName, ostream &out = cout);
 	 // Удаление записи-строки из таблицы с индексом rowNum
